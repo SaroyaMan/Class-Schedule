@@ -16,9 +16,15 @@ import timetable.DbHelper;
 public class PhoneDAO {
 
 	private Connection connection;
+	private static PhoneDAO instance;
 	
 	private PhoneDAO() throws ClassNotFoundException, SQLException, IOException, ParseException {
 		connection = DbHelper.getInstance().getConnection();
+	}
+	
+	public static PhoneDAO getInstance() throws ClassNotFoundException, SQLException, IOException, ParseException {
+		if (instance == null) return (instance = new PhoneDAO());
+		return instance;
 	}
 	
 	public List<Phone> getAllPhones() throws Exception {

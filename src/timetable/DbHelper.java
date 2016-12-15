@@ -1,10 +1,10 @@
 package timetable;
 
 import java.io.FileInputStream;
+
 import java.io.IOException;
 import java.sql.*;
 import java.text.ParseException;
-import java.util.Calendar;
 import java.util.Properties;
 
 
@@ -24,10 +24,10 @@ public class DbHelper {
 		connectToDatabase();
 
 		// Create tables
-		createTables();
+//		createTables();
 
 		// Insert records to tables
-		insertRecords();
+//		insertRecords();
 	}
 
 	private void connectToDatabase() throws IOException, SQLException, ClassNotFoundException {
@@ -58,7 +58,7 @@ public class DbHelper {
 
 		statement.executeUpdate("CREATE TABLE IF NOT EXISTS lecturer(id int AUTO_INCREMENT, "
 				+ "name_first varchar(20) NOT NULL, name_last varchar(20) NOT NULL, "
-				+ "address varchar(20) NOT NULL, birthdate date NOT NULL, age int NOT NULL, "
+				+ "address varchar(20) NOT NULL, birthdate date NOT NULL, "
 				+ "PRIMARY KEY(id))");
 
 		statement.executeUpdate("CREATE TABLE IF NOT EXISTS course(number int AUTO_INCREMENT, "
@@ -93,7 +93,7 @@ public class DbHelper {
 		// Insert records into lecturer table
 
 		statement = connection.prepareStatement("INSERT INTO lecturer (name_first, name_last,"
-				+ "address, birthdate, age) values(?,?,?,?,?)");
+				+ "address, birthdate) values(?,?,?,?)");
 		insertRecordToLecturer("Marcelo","Shihman","Bney Brak","1991-04-03");
 		insertRecordToLecturer("Amit","Shmuel","Ramat Hasharon","1991-08-25");
 		insertRecordToLecturer("Yftah","Livny","Petah Tikva","1988-03-01");
@@ -184,12 +184,10 @@ public class DbHelper {
 			String birthdate) throws SQLException {
 
 		Date birth = Date.valueOf(birthdate);
-		//		statement.setInt(1, ++numId);
 		statement.setString(1, fname);
 		statement.setString(2, lname);
 		statement.setString(3, address);
 		statement.setDate(4,birth);
-		statement.setInt(5,calculateAge(birth));
 		statement.addBatch();
 		statement.executeBatch();
 	}
@@ -199,18 +197,6 @@ public class DbHelper {
 		statement.setString(2, phoneNum);
 		statement.addBatch();
 		statement.executeBatch();
-	}
-
-	public int calculateAge(Date birth) {
-		//		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-		//		String currDate = sdf.format(birth);
-		int birthdateYear = Integer.parseInt(birth.toString().substring(0, 4));
-		long currTime = System.currentTimeMillis();
-		Calendar now = Calendar.getInstance();
-		long birthdateTime = birth.getTime();
-
-		if (currTime > birthdateTime) return now.get(Calendar.YEAR) - birthdateYear;
-		return now.get(Calendar.YEAR) - birthdateYear + 1;
 	}
 
 	public static DbHelper getInstance() throws ClassNotFoundException, SQLException, IOException, ParseException {

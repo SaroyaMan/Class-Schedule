@@ -17,9 +17,15 @@ import timetable.DbHelper;
 public class LecturerDAO {
 
 	private Connection connection;
+	private static LecturerDAO instance;
 	
 	private LecturerDAO() throws ClassNotFoundException, SQLException, IOException, ParseException {
 		connection = DbHelper.getInstance().getConnection();
+	}
+	
+	public static LecturerDAO getInstance() throws ClassNotFoundException, SQLException, IOException, ParseException {
+		if(instance == null) return (instance = new LecturerDAO());
+		return instance;
 	}
 	
 	public List<Lecturer> getAllLecturers() throws Exception {
@@ -73,16 +79,14 @@ public class LecturerDAO {
 		try {
 			// prepare statement
 			myStmt = connection.prepareStatement("update lecturer"
-					+ " set first_name=?, last_name=?, address=?, birthdate=?, age=?"
-					+ " where id=?");
+					+ " set first_name=?, last_name=?, address=?, birthdate=? where id=?");
 			
 			// set params
 			myStmt.setString(1, theLecturer.getFirstName());
 			myStmt.setString(2, theLecturer.getLastName());
 			myStmt.setString(3, theLecturer.getAddress());
 			myStmt.setDate(4, theLecturer.getBirthdate());
-			myStmt.setInt(5, DbHelper.getInstance().calculateAge(theLecturer.getBirthdate()));
-			myStmt.setInt(6, theLecturer.getId());
+			myStmt.setInt(5, theLecturer.getId());
 			
 			// execute SQL
 			myStmt.executeUpdate();			
@@ -118,9 +122,7 @@ public class LecturerDAO {
 		String lastName = myRs.getString("name_last");
 		String address = myRs.getString("address");
 		Date birthdate = myRs.getDate("birthdate");
-		int age = myRs.getInt("age");
-		
-		return new Lecturer(id, firstName, lastName, address, birthdate, age);
+		return new Lecturer(id, firstName, lastName, address, birthdate);
 	}
 
 	

@@ -93,7 +93,6 @@ public class View extends JPanel {
     }
 
 	
-	
     /** Returns an ImageIcon, or null if the path was invalid. */
     protected static ImageIcon createImageIcon(String path) {
         java.net.URL imgURL = View.class.getResource(path);

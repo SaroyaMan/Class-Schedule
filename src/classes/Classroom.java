@@ -6,10 +6,10 @@ public class Classroom {
 	private int building;
 	private int floor;
 	
-	public Classroom(int number, int building, int floor) {
-		this.building = building;
-		this.floor = floor;
+	public Classroom(int number) {
 		this.number = number;
+		this.building = Integer.parseInt(String.valueOf(String.valueOf(number).charAt(0)));
+		this.floor = Integer.parseInt(String.valueOf(String.valueOf(number).charAt(1)));
 	}
 	public int getBuilding() {
 		return building;

@@ -1,6 +1,7 @@
 package classes;
 
 import java.sql.Date;
+import java.util.Calendar;
 
 public class Lecturer {
 	
@@ -12,12 +13,12 @@ public class Lecturer {
 	private int age;
 	
 	
-	public Lecturer(int id, String f_name, String l_name, String address, Date birthdate, int age) {
+	public Lecturer(int id, String f_name, String l_name, String address, Date birthdate) {
 		this.f_name = f_name;
 		this.l_name = l_name;
 		this.id = id;
 		this.birthdate = birthdate;
-		this.age = age;
+		this.age = calculateAge();
 		this.address = address;
 	}
 	public String getFirstName() {
@@ -43,6 +44,7 @@ public class Lecturer {
 	}
 	public void setBirthdate(Date birthdate) {
 		this.birthdate = birthdate;
+		age = calculateAge();
 	}
 	public int getAge() {
 		return age;
@@ -62,5 +64,12 @@ public class Lecturer {
 				+ ", age=" + age + ", address=" + address + "]";
 	}
 	
-	
+	private int calculateAge() {
+		int birthdateYear = Integer.parseInt(birthdate.toString().substring(0, 4));
+		long currTime = System.currentTimeMillis();
+		Calendar now = Calendar.getInstance();
+		long birthdateTime = birthdate.getTime();
+		if (currTime > birthdateTime) return now.get(Calendar.YEAR) - birthdateYear;
+		return now.get(Calendar.YEAR) - birthdateYear + 1;
+	}
 }
