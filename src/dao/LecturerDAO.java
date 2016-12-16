@@ -19,6 +19,8 @@ public class LecturerDAO {
 	private Connection connection;
 	private static LecturerDAO instance;
 	
+	private List<Lecturer> list = null;
+	
 	private LecturerDAO() throws ClassNotFoundException, SQLException, IOException, ParseException {
 		connection = DbHelper.getInstance().getConnection();
 	}
@@ -28,9 +30,9 @@ public class LecturerDAO {
 		return instance;
 	}
 	
-	public List<Lecturer> getAllLecturers() throws Exception {
+	public List<Lecturer> getAllLecturers() throws SQLException {
 		
-		List<Lecturer> list = new ArrayList<>();
+		list = new ArrayList<>();
 		
 		Statement myStmt = null;
 		ResultSet myRs = null;
@@ -50,7 +52,7 @@ public class LecturerDAO {
 		}
 	}
 	
-	public void addLecturer(Lecturer theLecturer) throws Exception {
+	public void addLecturer(Lecturer theLecturer) throws SQLException {
 		
 		PreparedStatement myStmt = null;
 		try {
@@ -96,7 +98,7 @@ public class LecturerDAO {
 		}
 	}
 	
-	public void deleteLecturer(int LecturerId) throws SQLException {
+	public void deleteLecturer(int lecturerId) throws SQLException {
 		
 		PreparedStatement myStmt = null;
 
@@ -105,7 +107,7 @@ public class LecturerDAO {
 			myStmt = connection.prepareStatement("delete from lecturer where id=?");
 			
 			// set param
-			myStmt.setInt(1, LecturerId);
+			myStmt.setInt(1, lecturerId);
 			
 			// execute SQL
 			myStmt.executeUpdate();			
@@ -113,6 +115,14 @@ public class LecturerDAO {
 		finally {
 			close(myStmt,null);
 		}
+	}
+	
+	public ArrayList<Integer> getAllLecturersId() {
+		ArrayList<Integer> listOfIds = new ArrayList<>();
+		for (Lecturer lecturer : list) {
+			listOfIds.add(lecturer.getId());
+		}
+		return listOfIds;
 	}
 	
 	private Lecturer convertRowToLecturer(ResultSet myRs) throws SQLException {

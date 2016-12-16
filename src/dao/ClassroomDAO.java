@@ -27,7 +27,7 @@ public class ClassroomDAO {
 		return instance;
 	}
 	
-	public List<Classroom> getAllClassrooms() throws Exception {
+	public List<Classroom> getAllClassrooms() throws SQLException {
 		
 		List<Classroom> list = new ArrayList<>();
 		

@@ -27,7 +27,7 @@ public class CourseDAO {
 		return instance;
 	}
 	
-	public List<Course> getAllCourses() throws Exception {
+	public List<Course> getAllCourses() throws SQLException {
 		
 		List<Course> list = new ArrayList<>();
 		
@@ -49,7 +49,7 @@ public class CourseDAO {
 		}
 	}
 	
-	public void addCourse(Course theCourse) throws Exception {
+	public void addCourse(Course theCourse) throws SQLException {
 		
 		PreparedStatement myStmt = null;
 		try {
@@ -62,6 +62,7 @@ public class CourseDAO {
 			myStmt.setString(2, theCourse.getSemester());
 			myStmt.setInt(3, theCourse.getYear());
 			myStmt.setInt(4, theCourse.getHours());
+			
 			// execute SQL
 			myStmt.executeUpdate();			
 		}

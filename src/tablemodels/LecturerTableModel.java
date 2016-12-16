@@ -10,13 +10,13 @@ public class LecturerTableModel extends AbstractTableModel {
 
 	private static final long serialVersionUID = 1L;
 	
-	private static final int OBJECT_COL = -1;
-	private static final int ID_COL = 0;
-	private static final int FIRST_NAME_COL = 1;
-	private static final int LAST_NAME_COL = 2;
-	private static final int ADDRESS_COL = 3;
-	private static final int BIRTHDATE_COL = 4;
-	private static final int AGE_COL = 5;
+	public static final int OBJECT_COL = -1;
+	public static final int ID_COL = 0;
+	public static final int FIRST_NAME_COL = 1;
+	public static final int LAST_NAME_COL = 2;
+	public static final int ADDRESS_COL = 3;
+	public static final int BIRTHDATE_COL = 4;
+	public static final int AGE_COL = 5;
 	
 	private String[] columnNames = { "ID", "First Name", "Last Name","Address", "Birthdate","Age" };
 	private List<Lecturer> lecturers;
@@ -54,7 +54,7 @@ public class LecturerTableModel extends AbstractTableModel {
 		case ADDRESS_COL:
 			return tempLecturer.getAddress();
 		case BIRTHDATE_COL:
-			return tempLecturer.getAddress();
+			return tempLecturer.getBirthdate();
 		case AGE_COL:
 			return tempLecturer.getAge();
 		case OBJECT_COL:

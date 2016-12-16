@@ -8,11 +8,11 @@ public class PhoneTableModel extends AbstractTableModel {
 
 	private static final long serialVersionUID = 1L;
 	
-	private static final int OBJECT_COL = -1;
-	private static final int ID_COL = 0;
-	private static final int NUMBER_COL = 1;
+	public static final int OBJECT_COL = -1;
+	public static final int NUMBER_COL = 0;
+	public static final int ID_COL = 1;
 
-	private String[] columnNames = { "ID", "Number" };
+	private String[] columnNames = { "Number", "Lecturer ID" };
 	private List<Phone> phones;
 
 	public PhoneTableModel(List<Phone> thephones) {
@@ -39,14 +39,14 @@ public class PhoneTableModel extends AbstractTableModel {
 		Phone tempPhone = phones.get(rowIndex);
 
 		switch (columnIndex) {
-		case ID_COL:
-			return tempPhone.getId();
 		case NUMBER_COL:
 			return tempPhone.getNumber();
+		case ID_COL:
+			return tempPhone.getIdLecturer();
 		case OBJECT_COL:
 			return tempPhone;
 		default:
-			return tempPhone.getId();
+			return tempPhone.getNumber();
 		}
 	}
 	

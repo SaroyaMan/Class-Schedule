@@ -10,10 +10,10 @@ public class ClassroomTableModel extends AbstractTableModel {
 
 	private static final long serialVersionUID = 1L;
 	
-	private static final int OBJECT_COL = -1;
-	private static final int NUMBER_COL = 0;
-	private static final int BUILDING_COL = 1;
-	private static final int FLOOR_COL = 2;
+	public static final int OBJECT_COL = -1;
+	public static final int NUMBER_COL = 0;
+	public static final int BUILDING_COL = 1;
+	public static final int FLOOR_COL = 2;
 	
 	private String[] columnNames = { "Number", "Building", "Floor"};
 	private List<Classroom> classrooms;

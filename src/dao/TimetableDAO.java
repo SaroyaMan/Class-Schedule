@@ -28,7 +28,7 @@ public class TimetableDAO {
 		return instance;
 	}
 	
-	public List<Timetable> getAllTimetables() throws Exception {
+	public List<Timetable> getAllTimetables() throws SQLException {
 		
 		List<Timetable> list = new ArrayList<>();
 		
@@ -50,7 +50,7 @@ public class TimetableDAO {
 		}
 	}
 	
-	public void addTimetable(Timetable theTimetable) throws Exception {
+	public void addTimetable(Timetable theTimetable) throws SQLException {
 		
 		PreparedStatement myStmt = null;
 		try {
@@ -113,6 +113,24 @@ public class TimetableDAO {
 			myStmt.setInt(3, classNumber);
 			myStmt.setString(4, day);
 			myStmt.setInt(5, hour);
+			// execute SQL
+			myStmt.executeUpdate();			
+		}
+		finally {
+			close(myStmt,null);
+		}
+	}
+	
+	public void deleteTimetableByCourseNumber(int courseNumber) throws SQLException {
+		
+		PreparedStatement myStmt = null;
+
+		try {
+			// prepare statement
+			myStmt = connection.prepareStatement("delete from timetable where courseNumber=?");
+			
+			// set param
+			myStmt.setInt(1, courseNumber);
 			// execute SQL
 			myStmt.executeUpdate();			
 		}

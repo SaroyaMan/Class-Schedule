@@ -1,17 +1,21 @@
 package timetable;
 
 import java.awt.EventQueue;
+
 import java.awt.Font;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.ChangeEvent;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import classes.*;
 import dao.*;
+import dialogs.*;
 import tablemodels.ClassroomTableModel;
 import tablemodels.CourseTableModel;
 import tablemodels.LecturerTableModel;
@@ -29,6 +33,11 @@ import java.awt.Insets;
 import java.awt.Toolkit;
 import javax.swing.JButton;
 import java.awt.FlowLayout;
+import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.text.ParseException;
+import java.awt.event.ActionEvent;
 
 public class GuiClass extends JFrame {
 
@@ -36,19 +45,41 @@ public class GuiClass extends JFrame {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+
+	private DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+
+
 	private JPanel contentPane;
+
 	private JTable classroomTable;
 	private JTable courseTable;
 	private JTable lecturerTable;
 	private JTable phoneTable;
 	private JTable timetableTable;
 
+	private ClassroomDialog classroomDialog = null;
+	private PhoneDialog phoneDialog = null;
+	private CourseDialog courseDialog = null;
+	//	private LecturerDialog lecturerDialog = null;	//TODO
 
-	List<Classroom> classrooms = null;
-	List<Course> courses = null;
-	List<Lecturer> lecturers = null;
-	List<Phone> phones = null;
-	List<Timetable> timetables = null;
+	private ClassroomTableModel classroomTableModel = null;
+	private CourseTableModel courseTableModel = null;
+	private LecturerTableModel lecturerTableModel = null;
+	private PhoneTableModel phoneTableModel = null;
+	private TimetableTableModel timetableTableModel = null;
+
+	private List<Classroom> classrooms = null;
+	private List<Course> courses = null;
+	private List<Lecturer> lecturers = null;
+	private List<Phone> phones = null;
+	private List<Timetable> timetables = null;
+
+	private ClassroomDAO classroomDAO = null;
+	private CourseDAO courseDAO = null;
+	private LecturerDAO lecturerDAO = null;
+	private PhoneDAO phoneDAO = null;
+	private TimetableDAO timetableDAO = null;
+
 	private JPanel panel;
 	private JButton addButton;
 	private JButton deleteButton;
@@ -73,6 +104,7 @@ public class GuiClass extends JFrame {
 	 * Create the frame.
 	 */
 	public GuiClass() {
+		centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
 		setTitle("Timetable Managment System");
 		setIconImage(Toolkit.getDefaultToolkit().getImage("images/timetablelogo.png"));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -95,32 +127,30 @@ public class GuiClass extends JFrame {
 		gbc_tabbedPane.gridx = 0;
 		gbc_tabbedPane.gridy = 0;
 		contentPane.add(tabbedPane, gbc_tabbedPane);
-		
+
 		try {
-			classrooms = ClassroomDAO.getInstance().getAllClassrooms();
-			courses = CourseDAO.getInstance().getAllCourses();
-			lecturers = LecturerDAO.getInstance().getAllLecturers();
-			phones = PhoneDAO.getInstance().getAllPhones();
-			timetables = TimetableDAO.getInstance().getAllTimetables();
-		} catch (Exception e) {
+			classrooms = (classroomDAO = ClassroomDAO.getInstance()).getAllClassrooms();
+			courses = (courseDAO = CourseDAO.getInstance()).getAllCourses();
+			lecturers = (lecturerDAO = LecturerDAO.getInstance()).getAllLecturers();
+			phones = (phoneDAO = PhoneDAO.getInstance()).getAllPhones();
+			timetables = (timetableDAO = TimetableDAO.getInstance()).getAllTimetables();
+		} catch (ClassNotFoundException | SQLException | IOException | ParseException e) {
 			e.printStackTrace();
 		}
-		ClassroomTableModel classroomTableModel = new ClassroomTableModel(classrooms);
-		CourseTableModel courseTableModel = new CourseTableModel(courses);
-		LecturerTableModel lecturerTableModel = new LecturerTableModel(lecturers);
-		PhoneTableModel phoneTableModel = new PhoneTableModel(phones);
-		TimetableTableModel timetableTableModel = new TimetableTableModel(timetables);
+		classroomTableModel = new ClassroomTableModel(classrooms);
+		courseTableModel = new CourseTableModel(courses);
+		lecturerTableModel = new LecturerTableModel(lecturers);
+		phoneTableModel = new PhoneTableModel(phones);
+		timetableTableModel = new TimetableTableModel(timetables);
 
 		classroomTable = new JTable(classroomTableModel);
 		tabbedPane.addTab("Classrooms", createImageIcon("images/classroomlogo.png"),
 				new JScrollPane(classroomTable), "Watch classroom table");
 
-//		tabbedPane.getTabComponentAt(0).add(new JScrollPane(classroomTable)));
-		
 		courseTable = new JTable(courseTableModel);
 		tabbedPane.addTab("Courses", createImageIcon("images/courselogo.png"),
 				new JScrollPane(courseTable), "Watch course table");
-		
+
 		lecturerTable = new JTable(lecturerTableModel);
 		tabbedPane.addTab("Lecturers", createImageIcon("images/lecturerlogo.png"),
 				new JScrollPane(lecturerTable), "Watch lecturer table");
@@ -132,7 +162,7 @@ public class GuiClass extends JFrame {
 		timetableTable = new JTable(timetableTableModel);
 		tabbedPane.addTab("Timetable", createImageIcon("images/timetablelogo.png"),
 				new JScrollPane(timetableTable), "Watch timetable");
-		
+
 		panel = new JPanel();
 		GridBagConstraints gbc_panel = new GridBagConstraints();
 		gbc_panel.insets = new Insets(0, 0, 5, 0);
@@ -141,24 +171,255 @@ public class GuiClass extends JFrame {
 		gbc_panel.gridy = 1;
 		contentPane.add(panel, gbc_panel);
 		panel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
-		
+
 		addButton = new JButton("Add");
+		addButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent ae) {
+
+				int index = tabbedPane.getSelectedIndex();
+				switch(index) {
+				case 0:		//classroom tab
+					addToClassroom();
+					break;
+				case 1:		//courses tab
+					addToCourse();
+					break;
+				case 2:		//lecturers tab
+//					addToLecturer();
+						break;
+				case 3: 	//phones tab
+					addToPhone();
+					break;
+				default: break;
+				}
+			}
+		});
 		addButton.setFont(new Font("Tahoma", Font.BOLD, 13));
 		panel.add(addButton);
-		
+
 		deleteButton = new JButton("Delete");
+		deleteButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int index = tabbedPane.getSelectedIndex();
+				try {
+					switch(index) {
+					case 0:		//classroom tab
+						deleteFromClassroom(index);
+						break;
+					case 1:		//courses tab
+						deleteFromCourse(index);
+						break;
+					case 2:		//lecturers tab
+						deleteFromLecturer(index);
+						break;
+					case 3: 	//phones tab
+						deleteFromPhone(index);
+						break;
+					default: break;
+					} 
+				} catch(SQLException ex) {
+					JOptionPane.showMessageDialog(GuiClass.this, "Error: " + ex.getMessage(),
+							"Error", JOptionPane.ERROR_MESSAGE);
+				}
+			}
+		});
 		deleteButton.setFont(new Font("Tahoma", Font.BOLD, 13));
 		panel.add(deleteButton);
-		
+
 		updateButton = new JButton("Update");
+		updateButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int index = tabbedPane.getSelectedIndex();
+				try {
+					switch(index) {
+					case 0:		//classroom tab
+						updateClassroom();
+						break;
+					case 1:		//courses tab
+						updateCourse();
+						break;
+					case 2:		//lecturers tab
+//						updateLecturer();
+						break;
+					case 3: 	//phones tab
+						updatePhone();
+						break;
+					default: break;
+					}
+				} catch(SQLException ex) {
+					JOptionPane.showMessageDialog(GuiClass.this, "Error: " + ex.getMessage(),
+							"Error", JOptionPane.ERROR_MESSAGE);
+				}
+			}
+		});
 		updateButton.setFont(new Font("Tahoma", Font.BOLD, 13));
 		panel.add(updateButton);
 
-		alignValuesInTables();
+		alignAllTables();
+
+
+		tabbedPane.addChangeListener((ChangeEvent e) -> {
+			int index = tabbedPane.getSelectedIndex();
+			if(index == 4) {		// index 4 is timetable tab
+				addButton.setVisible(false);
+				deleteButton.setVisible(false);
+				updateButton.setVisible(false);
+			} else {
+				addButton.setVisible(true);
+				deleteButton.setVisible(true);
+				updateButton.setVisible(true);
+			}
+		});
+	}
+
+	private void addToClassroom() {
+		if (classroomDialog == null || !classroomDialog.isVisible()) { 
+			// create dialog
+			classroomDialog = new ClassroomDialog(GuiClass.this, classroomDAO);
+
+			// show dialog
+			classroomDialog.setVisible(true);
+		}
+	}
+	
+	private void addToCourse() {
+		if (courseDialog == null || !courseDialog.isVisible()) {
+			// create dialog
+			courseDialog = new CourseDialog(GuiClass.this, courseDAO);
+
+			// show dialog
+			courseDialog.setVisible(true);
+		}
+	}
+
+	private void addToPhone() {
+		if (phoneDialog == null || !phoneDialog.isVisible()) {
+			// create dialog
+			phoneDialog = new PhoneDialog(GuiClass.this, phoneDAO);
+
+			// show dialog
+			phoneDialog.setVisible(true);
+		}
+	}
+
+	private void updateClassroom() throws SQLException {
+		int row = 0;
+		if((row = classroomTable.getSelectedRow()) == -1)
+			throw new SQLException("No classroom was selected");
+
+		Classroom tempClassroom = (Classroom)
+				classroomTable.getValueAt(row, ClassroomTableModel.OBJECT_COL);
+
+		if (classroomDialog == null || !classroomDialog.isVisible()) {
+			// create dialog
+			classroomDialog = new ClassroomDialog(GuiClass.this, classroomDAO,
+					tempClassroom, true);
+
+			// show dialog
+			classroomDialog.setVisible(true);
+		}
+		//TODO: update the timetable accordanly
+	}
+	
+	private void updateCourse() throws SQLException {
+		int row = 0;
+		if((row = courseTable.getSelectedRow()) == -1)
+			throw new SQLException("No course was selected");
+
+		Course tempCourse = (Course)courseTable.getValueAt(row, CourseTableModel.OBJECT_COL);
+
+		if (courseDialog == null || !courseDialog.isVisible()) {
+			// create dialog
+			courseDialog = new CourseDialog(GuiClass.this, courseDAO,tempCourse, true);
+
+			// show dialog
+			courseDialog.setVisible(true);
+		}
+		//TODO: update the timetable accordanly
+	}
+
+	private void updatePhone() throws SQLException {
+		int row = 0;
+		if((row = phoneTable.getSelectedRow()) == -1)
+			throw new SQLException("No phone was selected");
+
+		Phone tempPhone = (Phone)phoneTable.getValueAt(row, PhoneTableModel.OBJECT_COL);
+
+		if (phoneDialog == null || !phoneDialog.isVisible()) {
+			// create dialog
+			phoneDialog = new PhoneDialog(GuiClass.this, phoneDAO,tempPhone, true);
+
+			// show dialog
+			phoneDialog.setVisible(true);
+		}
 	}
 
 
-	/** Returns an ImageIcon, or null if the path was invalid. */
+	private void deleteFromClassroom(int index) throws SQLException {
+		int row = 0;
+		if((row = classroomTable.getSelectedRow()) == -1)
+			throw new SQLException("No classroom was selected");
+		int classNumber = (int) classroomTable.getValueAt(row, 0);
+
+		int response = confirmMessage
+				("class number "+classNumber+"? (timetable will be affected)"); // prompt the user
+		if (response != JOptionPane.YES_OPTION) return;
+
+		classroomDAO.deleteClassroom(classNumber);
+		refreshClassroomView();
+
+		/*TODO: decide what to do with timetable Table when a classroom is deleted*/
+	}
+
+	private void deleteFromCourse(int index) throws SQLException {
+		int row = 0;
+		if((row = courseTable.getSelectedRow()) == -1)
+			throw new SQLException("No course was selected");
+		int courseNum = (int) courseTable.getValueAt(row, 0);
+
+		int response = confirmMessage
+				("course num "+courseNum+"? (timetable will be affected)"); // prompt the user
+		if (response != JOptionPane.YES_OPTION) return;
+		courseDAO.deleteCourse(courseNum);
+		refreshCourseView();
+		timetableDAO.deleteTimetableByCourseNumber(courseNum);
+		refreshTimetableView();
+	}
+
+	private void deleteFromLecturer(int index) throws SQLException {
+		int row = 0;
+		if((row = lecturerTable.getSelectedRow()) == -1)
+			throw new SQLException("No lecturer was selected");
+		int lecturerId = (int) lecturerTable.getValueAt(row,0);
+		int response = confirmMessage
+				("lecturer with id "+ lecturerId+" ? (timetable will be affected)"); // prompt the user
+		if (response != JOptionPane.YES_OPTION) return;
+
+		lecturerDAO.deleteLecturer(lecturerId);
+		refreshLecturerView();
+
+		/*TODO: decide what to do with timetable Table when a lecturer is deleted*/
+	}
+
+	private void deleteFromPhone(int index) throws SQLException {
+		int row = 0;
+		if((row = phoneTable.getSelectedRow()) == -1)
+			throw new SQLException("No phone was selected");
+		String number = (String) phoneTable.getValueAt(row, 0);
+
+		int response = confirmMessage("phone "+ number+" ?"); // prompt the user
+		if (response != JOptionPane.YES_OPTION) return;
+		phoneDAO.deletePhone(number);
+		refreshPhoneView();
+	}
+
+	private int confirmMessage(String message) {
+		return JOptionPane.showConfirmDialog(
+				GuiClass.this, "Delete "+message, "Confirm", 
+				JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+	}
+
+	/* Returns an ImageIcon, or null if the path was invalid. */
 	protected static ImageIcon createImageIcon(String path) {
 		java.net.URL imgURL = View.class.getResource(path);
 		if (imgURL != null) {
@@ -169,24 +430,95 @@ public class GuiClass extends JFrame {
 		}
 	}
 
-	private void alignValuesInTables() {
+	/*============================================================================*/
+	/*============================================================================*/
+	/*==Refreshing and updating tables (NO REASON TO GET HERE, ITS A BLACK BOX)===*/
+	/*========================(Will be refactored later)==========================*/
+	/*============================================================================*/
 
-		DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-		centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+	public void refreshClassroomView() throws SQLException {
+		classrooms = classroomDAO.getAllClassrooms();
+
+		// create the model and update the "table"
+		classroomTableModel = new ClassroomTableModel(classrooms);
+
+		classroomTable.setModel(classroomTableModel);
+		alignClassroomTable();
+	}
+
+	public void refreshCourseView() throws SQLException {
+		courses = courseDAO.getAllCourses();
+
+		// create the model and update the "table"
+		courseTableModel = new CourseTableModel(courses);
+
+		courseTable.setModel(courseTableModel);
+		alignCourseTable();
+
+	}
+
+	public void refreshLecturerView() throws SQLException {
+		lecturers = lecturerDAO.getAllLecturers();
+
+		// create the model and update the "table"
+		lecturerTableModel = new LecturerTableModel(lecturers);
+
+		lecturerTable.setModel(lecturerTableModel);
+		alignLecturerTable();
+	}
+
+	public void refreshPhoneView() throws SQLException {
+		phones = phoneDAO.getAllPhones();
+
+		// create the model and update the "table"
+		phoneTableModel = new PhoneTableModel(phones);
+
+		phoneTable.setModel(phoneTableModel);
+		alignPhoneTable();
+
+	}
+
+	public void refreshTimetableView() throws SQLException {
+		timetables = timetableDAO.getAllTimetables();
+
+		// create the model and update the "table"
+		timetableTableModel = new TimetableTableModel(timetables);
+
+		timetableTable.setModel(timetableTableModel);
+		alignTimetableTable();
+
+	}
+
+	private void alignAllTables() {
+		alignClassroomTable();
+		alignCourseTable();
+		alignLecturerTable();
+		alignPhoneTable();
+		alignTimetableTable();
+	}
+
+	private void alignClassroomTable() {
 		for(int i=0;i<classroomTable.getColumnCount();i++)
 			classroomTable.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+	}
 
+	private void alignCourseTable() {
 		for(int i=0;i<courseTable.getColumnCount();i++)
 			courseTable.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+	}
 
+	private void alignLecturerTable() {
 		for(int i=0;i<lecturerTable.getColumnCount();i++)
 			lecturerTable.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+	}
 
+	private void alignPhoneTable() {
 		for(int i=0;i<phoneTable.getColumnCount();i++)
 			phoneTable.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+	}
 
+	private void alignTimetableTable() {
 		for(int i=0;i<timetableTable.getColumnCount();i++)
 			timetableTable.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
-
 	}
 }

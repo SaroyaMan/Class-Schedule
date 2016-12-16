@@ -10,12 +10,12 @@ public class CourseTableModel extends AbstractTableModel {
 
 	private static final long serialVersionUID = 1L;
 	
-	private static final int OBJECT_COL = -1;
-	private static final int NUMBER_COL = 0;
-	private static final int NAME_COL = 1;
-	private static final int SEMESTER_COL = 2;
-	private static final int YEAR_COL = 3;
-	private static final int HOURS_COL = 4;
+	public static final int OBJECT_COL = -1;
+	public static final int NUMBER_COL = 0;
+	public static final int NAME_COL = 1;
+	public static final int SEMESTER_COL = 2;
+	public static final int YEAR_COL = 3;
+	public static final int HOURS_COL = 4;
 	
 	private String[] columnNames = { "Number", "Name", "Semester","Year", "Hours"};
 	private List<Course> Courses;

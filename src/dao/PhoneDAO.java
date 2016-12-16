@@ -27,7 +27,7 @@ public class PhoneDAO {
 		return instance;
 	}
 	
-	public List<Phone> getAllPhones() throws Exception {
+	public List<Phone> getAllPhones() throws SQLException {
 		
 		List<Phone> list = new ArrayList<>();
 		
@@ -49,7 +49,7 @@ public class PhoneDAO {
 		}
 	}
 	
-	public void addPhone(Phone thePhone) throws Exception {
+	public void addPhone(Phone thePhone) throws SQLException {
 		
 		PreparedStatement myStmt = null;
 		try {
@@ -57,8 +57,8 @@ public class PhoneDAO {
 			myStmt = connection.prepareStatement("insert into phone values(?,?)");
 			
 			// set params
-			myStmt.setInt(1, thePhone.getId());
-			myStmt.setString(2, thePhone.getNumber());
+			myStmt.setString(1, thePhone.getNumber());
+			myStmt.setInt(2, thePhone.getIdLecturer());
 
 			// execute SQL
 			myStmt.executeUpdate();			
@@ -75,11 +75,11 @@ public class PhoneDAO {
 		try {
 			// prepare statement
 			myStmt = connection.prepareStatement("update phone"
-					+ " set number=? where lecturerId=? and number=?");
+					+ " set number=?, lecturerId=? where number=?");
 			
 			// set params
 			myStmt.setString(1, thePhone.getNumber());
-			myStmt.setInt(2, thePhone.getId());
+			myStmt.setInt(2, thePhone.getIdLecturer());
 			myStmt.setString(3, thePhone.getNumber());
 			
 			// execute SQL
@@ -90,17 +90,16 @@ public class PhoneDAO {
 		}
 	}
 	
-	public void deletePhone(int phoneId, int number) throws SQLException {
+	public void deletePhone(String number) throws SQLException {
 		
 		PreparedStatement myStmt = null;
 
 		try {
 			// prepare statement
-			myStmt = connection.prepareStatement("delete from phone where lecturerId=? and number=?");
+			myStmt = connection.prepareStatement("delete from phone where number=?");
 			
 			// set param
-			myStmt.setInt(1, phoneId);
-			myStmt.setInt(2, number);
+			myStmt.setString(1, number);
 			// execute SQL
 			myStmt.executeUpdate();			
 		}
@@ -113,7 +112,7 @@ public class PhoneDAO {
 		
 		int id = myRs.getInt("lecturerId");
 		String number = myRs.getString("number");
-		return new Phone(id, number);
+		return new Phone(number, id);
 	}
 	
 	private static void close(Statement myStmt, ResultSet myRs)

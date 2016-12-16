@@ -2,20 +2,20 @@ package classes;
 
 public class Phone {
 
-	private int id;
+	private int idLecturer;
 	private String number;
 	
 	
 	
-	public Phone(int id, String number) {
-		this.id = id;
+	public Phone(String number, int idLecturer) {
+		this.idLecturer = idLecturer;
 		this.number = number;
 	}
-	public int getId() {
-		return id;
+	public int getIdLecturer() {
+		return idLecturer;
 	}
-	public void setId(int id) {
-		this.id = id;
+	public void setIdLecturer(int id) {
+		this.idLecturer = id;
 	}
 	public String getNumber() {
 		return number;
@@ -25,7 +25,7 @@ public class Phone {
 	}
 	@Override
 	public String toString() {
-		return "Phone [id=" + id + ", number=" + number + "]";
+		return "Phone [idLecturer=" + idLecturer + ", number=" + number + "]";
 	}
 	
 	

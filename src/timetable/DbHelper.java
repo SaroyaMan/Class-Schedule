@@ -66,8 +66,8 @@ public class DbHelper {
 				+ "hours int NOT NULL, "
 				+ "PRIMARY KEY (number))");
 
-		statement.executeUpdate("CREATE TABLE IF NOT EXISTS phone(lecturerId int, "
-				+ "number varchar(12), PRIMARY KEY(lecturerId, number))");
+		statement.executeUpdate("CREATE TABLE IF NOT EXISTS phone(number varchar(12), "
+				+ "lecturerId int, PRIMARY KEY(number))");
 
 		statement.executeUpdate("CREATE TABLE IF NOT EXISTS timetable(courseNumber int, "
 				+ "lecturerId int, classNumber int, day varchar(10), hour int, "
@@ -193,8 +193,8 @@ public class DbHelper {
 	}
 	
 	private void insertRecordToPhone(int idLecturer, String phoneNum) throws SQLException {
-		statement.setInt(1,idLecturer);
-		statement.setString(2, phoneNum);
+		statement.setString(1, phoneNum);
+		statement.setInt(2, idLecturer);
 		statement.addBatch();
 		statement.executeBatch();
 	}
