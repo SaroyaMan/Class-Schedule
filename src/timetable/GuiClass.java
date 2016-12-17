@@ -60,7 +60,7 @@ public class GuiClass extends JFrame {
 	private ClassroomDialog classroomDialog = null;
 	private PhoneDialog phoneDialog = null;
 	private CourseDialog courseDialog = null;
-	//	private LecturerDialog lecturerDialog = null;	//TODO
+	private LecturerDialog lecturerDialog = null;
 
 	private ClassroomTableModel classroomTableModel = null;
 	private CourseTableModel courseTableModel = null;
@@ -185,8 +185,8 @@ public class GuiClass extends JFrame {
 					addToCourse();
 					break;
 				case 2:		//lecturers tab
-//					addToLecturer();
-						break;
+					addToLecturer();
+					break;
 				case 3: 	//phones tab
 					addToPhone();
 					break;
@@ -239,7 +239,7 @@ public class GuiClass extends JFrame {
 						updateCourse();
 						break;
 					case 2:		//lecturers tab
-//						updateLecturer();
+						updateLecturer();
 						break;
 					case 3: 	//phones tab
 						updatePhone();
@@ -282,6 +282,16 @@ public class GuiClass extends JFrame {
 		}
 	}
 	
+	private void addToLecturer() {
+		if (lecturerDialog == null || !lecturerDialog.isVisible()) {
+			// create dialog
+			lecturerDialog = new LecturerDialog(GuiClass.this, lecturerDAO);
+
+			// show dialog
+			lecturerDialog.setVisible(true);
+		}
+	}
+
 	private void addToCourse() {
 		if (courseDialog == null || !courseDialog.isVisible()) {
 			// create dialog
@@ -320,7 +330,7 @@ public class GuiClass extends JFrame {
 		}
 		//TODO: update the timetable accordanly
 	}
-	
+
 	private void updateCourse() throws SQLException {
 		int row = 0;
 		if((row = courseTable.getSelectedRow()) == -1)
@@ -336,6 +346,23 @@ public class GuiClass extends JFrame {
 			courseDialog.setVisible(true);
 		}
 		//TODO: update the timetable accordanly
+	}
+	
+	private void updateLecturer() throws SQLException {
+		int row = 0;
+		if((row = lecturerTable.getSelectedRow()) == -1)
+			throw new SQLException("No lecturer was selected");
+
+		Lecturer tempLecturer = 
+				(Lecturer)lecturerTable.getValueAt(row, LecturerTableModel.OBJECT_COL);
+
+		if (lecturerDialog == null || !lecturerDialog.isVisible()) {
+			// create dialog
+			lecturerDialog = new LecturerDialog(GuiClass.this, lecturerDAO,tempLecturer, true);
+
+			// show dialog
+			lecturerDialog.setVisible(true);
+		}
 	}
 
 	private void updatePhone() throws SQLException {

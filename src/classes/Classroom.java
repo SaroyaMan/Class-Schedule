@@ -22,9 +22,12 @@ public class Classroom {
 		return number;
 	}
 	public void setNumber(int number) {
-		this.number = number;
-		this.building = Integer.parseInt(String.valueOf(String.valueOf(number).charAt(0)));
-		this.floor = Integer.parseInt(String.valueOf(String.valueOf(number).charAt(1)));
+		try {
+			this.number = number;
+			this.building = Integer.parseInt(String.valueOf(String.valueOf(number).charAt(0)));
+			this.floor = Integer.parseInt(String.valueOf(String.valueOf(number).charAt(1)));
+		}
+		catch(Exception e) {e.printStackTrace();}
 	}
 	@Override
 	public String toString() {

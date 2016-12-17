@@ -140,11 +140,11 @@ public class ClassroomDialog extends JDialog {
 
 		try {
 			int classNum = Integer.parseInt(classNumTextField.getText());
-			int oldClassNum = previousClassroom.getNumber();
+			int oldClassNum = 0;
 			if (updateMode) {
+				oldClassNum = previousClassroom.getNumber();
 				tempClassroom = previousClassroom;
 				tempClassroom.setNumber(classNum);
-				System.out.println(tempClassroom);
 
 			} else {
 				tempClassroom = new Classroom(classNum);
