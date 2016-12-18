@@ -103,7 +103,7 @@ public class ClassroomDAO {
 			myStmt.setInt(1, ClassroomId);
 			
 			// execute SQL
-			myStmt.executeUpdate();			
+			myStmt.executeUpdate();
 		}
 		finally {
 			close(myStmt,null);

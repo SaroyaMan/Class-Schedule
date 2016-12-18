@@ -1,13 +1,16 @@
 package dialogs;
 
 import java.awt.BorderLayout;
-
 import java.awt.FlowLayout;
 
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+
+import org.jdatepicker.JDateComponentFactory;
+import org.jdatepicker.JDatePicker;
 
 import classes.Lecturer;
 import dao.LecturerDAO;
@@ -39,7 +42,7 @@ public class LecturerDialog extends JDialog {
 	private JTextField addressTextField;
 	private JTextField lastNameTextField;
 
-//	private 
+	private JDatePicker datePicker;
 	
 	public LecturerDialog(GuiClass guiClass,
 			LecturerDAO theLecturerDAO, Lecturer thePreviousLecturer, boolean theUpdateMode) {
@@ -63,6 +66,12 @@ public class LecturerDialog extends JDialog {
 		firstNameTextField.setText(theLecturer.getFirstName());
 		lastNameTextField.setText(theLecturer.getLastName());
 		addressTextField.setText(theLecturer.getAddress());
+		int year = Integer.parseInt(theLecturer.getBirthdate().toString().substring(0, 4));
+		datePicker.getModel().setYear(year);
+		int month = Integer.parseInt(theLecturer.getBirthdate().toString().substring(5, 7))-1;
+		datePicker.getModel().setMonth(month);
+		int days = Integer.parseInt(theLecturer.getBirthdate().toString().substring(8, 10));
+		datePicker.getModel().setDay(days);
 	}
 
 	/**
@@ -148,6 +157,23 @@ public class LecturerDialog extends JDialog {
 			gbc_birthdateLabel.gridy = 4;
 			contentPanel.add(birthdateLabel, gbc_birthdateLabel);
 		}
+//		{
+//			JComboBox comboBox = new JComboBox();
+//			GridBagConstraints gbc_comboBox = new GridBagConstraints();
+//			gbc_comboBox.fill = GridBagConstraints.HORIZONTAL;
+//			gbc_comboBox.gridx = 2;
+//			gbc_comboBox.gridy = 4;
+//			contentPanel.add(comboBox, gbc_comboBox);
+//		}
+		
+		{
+			datePicker = new JDateComponentFactory().createJDatePicker();
+			GridBagConstraints gbc_datePicker = new GridBagConstraints();
+			gbc_datePicker.fill = GridBagConstraints.HORIZONTAL;
+			gbc_datePicker.gridx = 2;
+			gbc_datePicker.gridy = 4;
+			contentPanel.add((JComponent)datePicker, gbc_datePicker);
+		}
 		
 		{
 			JPanel buttonPane = new JPanel();
@@ -186,7 +212,11 @@ public class LecturerDialog extends JDialog {
 			String l_name = lastNameTextField.getText();
 			String address = addressTextField.getText();
 
-			Date birthdate = null/*new org.jdatepicker.JDatePicker()*/;	//TODO
+			int year = datePicker.getModel().getYear();
+			int month = datePicker.getModel().getMonth()+1;
+			int day = datePicker.getModel().getDay();
+			String birth = year+"-"+month+"-"+day;
+			Date birthdate = Date.valueOf(birth);
 
 			if (updateMode) {
 				tempLecturer = previousLecturer;

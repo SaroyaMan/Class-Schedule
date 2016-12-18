@@ -35,17 +35,17 @@ public class DbHelper {
 		//Register JDBC driver
 		Class.forName("com.mysql.jdbc.Driver");
 
-		String dburl;
+//		String dburl;
 
 		//Get database properties
 		Properties props = new Properties();
 		props.load(new FileInputStream("src/timetable/timetable.properties"));
 
 		//Connect to database
-		connection = DriverManager.getConnection(dburl = props.getProperty("dburl"),
+		connection = DriverManager.getConnection(/*dburl = */props.getProperty("dburl"),
 				props.getProperty("user"), props.getProperty("password"));
-
-		System.out.println("DB connection successful to: " + dburl);
+		connection.setAutoCommit(true);
+//		System.out.println("DB connection successful to: " + dburl);
 	}
 
 	private void createTables() throws SQLException  {
@@ -53,26 +53,56 @@ public class DbHelper {
 		//clearAllTables(statement);
 
 		//Create all the tables needed for project
-		statement.executeUpdate("CREATE TABLE IF NOT EXISTS classroom(number int, building int, "
-				+ "floor int NOT NULL, PRIMARY KEY(number))");
 
-		statement.executeUpdate("CREATE TABLE IF NOT EXISTS lecturer(id int AUTO_INCREMENT, "
+		//		statement.executeUpdate("CREATE TABLE IF NOT EXISTS classroom(number int, building int, "
+		//				+ "floor int NOT NULL, PRIMARY KEY(number))");
+		//
+		//		statement.executeUpdate("CREATE TABLE IF NOT EXISTS lecturer(id int AUTO_INCREMENT, "
+		//				+ "name_first varchar(20) NOT NULL, name_last varchar(20) NOT NULL, "
+		//				+ "address varchar(20) NOT NULL, birthdate date NOT NULL, "
+		//				+ "PRIMARY KEY(id))");
+		//		
+		//		 		statement.executeUpdate("CREATE TABLE IF NOT EXISTS timetable(day varchar(10), "
+		//				+ "hour int, classNumber int, courseNumber int, lecturerId int, "
+		//				+ "PRIMARY KEY(day, hour, classNumber))");	
+		//
+		//		statement.executeUpdate("CREATE TABLE IF NOT EXISTS phone(number varchar(12), "
+		//				+ "lecturerId int, PRIMARY KEY(number))");
+		//		
+		//		statement.executeUpdate("CREATE TABLE IF NOT EXISTS course(number int AUTO_INCREMENT, "
+		//				+ "name varchar(20) NOT NULL, semester char NOT NULL, year int NOT NULL, "
+		//				+ "hours int NOT NULL, PRIMARY KEY(number))");
+
+		
+		statement.executeUpdate("CREATE TABLE IF NOT EXISTS classroom(number int, INDEX num_ind (number),"
+				+ " building int, floor int NOT NULL, PRIMARY KEY(number))ENGINE=INNODB");
+
+		statement.executeUpdate("CREATE TABLE IF NOT EXISTS lecturer("
+				+ "id int AUTO_INCREMENT, INDEX id_ind (id), "
 				+ "name_first varchar(20) NOT NULL, name_last varchar(20) NOT NULL, "
 				+ "address varchar(20) NOT NULL, birthdate date NOT NULL, "
-				+ "PRIMARY KEY(id))");
+				+ "PRIMARY KEY(id)) ENGINE=INNODB");
 
+		
 		statement.executeUpdate("CREATE TABLE IF NOT EXISTS course(number int AUTO_INCREMENT, "
+				+ "INDEX num_ind (number), "
 				+ "name varchar(20) NOT NULL, semester char NOT NULL, year int NOT NULL, "
-				+ "hours int NOT NULL, "
-				+ "PRIMARY KEY (number))");
+				+ "hours int NOT NULL, PRIMARY KEY(number)) "
+				+ "ENGINE=INNODB");
+	
 
 		statement.executeUpdate("CREATE TABLE IF NOT EXISTS phone(number varchar(12), "
-				+ "lecturerId int, PRIMARY KEY(number))");
+				+ "lecturerId int, INDEX lecturer_id_ind (lecturerId), PRIMARY KEY(number), "
+				+ "CONSTRAINT FOREIGN KEY(lecturerId) REFERENCES lecturer(id) ON DELETE CASCADE) ENGINE=INNODB");
 
-		statement.executeUpdate("CREATE TABLE IF NOT EXISTS timetable(courseNumber int, "
-				+ "lecturerId int, classNumber int, day varchar(10), hour int, "
-				+ "PRIMARY KEY(courseNumber, lecturerId, classNumber, day, hour))");
-		System.out.println("Tables created successfully");
+		statement.executeUpdate("CREATE TABLE IF NOT EXISTS timetable(day varchar(10), "
+				+ "hour int, classNumber int, INDEX class_num_ind (classNumber), "
+				+ "courseNumber int, INDEX course_num_ind (courseNumber), "
+				+ "lecturerId int, INDEX lec_id_ind (lecturerId) ,PRIMARY KEY(day, hour, classNumber), "
+				+ "CONSTRAINT FOREIGN KEY(courseNumber) REFERENCES course(number) ON DELETE CASCADE, "
+				+ "CONSTRAINT FOREIGN KEY(classNumber) REFERENCES classroom(number) ON UPDATE CASCADE, "
+				+ "CONSTRAINT FOREIGN KEY(lecturerId) REFERENCES lecturer(id) ON DELETE CASCADE) "
+				+ "ENGINE=INNODB");	
 	}
 
 	private void insertRecords() throws SQLException, ParseException {
@@ -100,12 +130,11 @@ public class DbHelper {
 		insertRecordToLecturer("Anat","Tal","Givaatiam","1991-10-01");
 		insertRecordToLecturer("Riva","Shalom","Ramat Hasharon","1965-08-25");
 		insertRecordToLecturer("Avivit","Levy","Ramat Hasharon","1973-08-25");
-		insertRecordToLecturer("Nudler","Ytzhak","Hod Hasharon","1964-08-25");
+		insertRecordToLecturer("Ytzhak","Nudler","Hod Hasharon","1964-08-25");
 		insertRecordToLecturer("Netzher","Zaidneberg","Tel Aviv","1983-08-25");
 		insertRecordToLecturer("Yonit","Rusho","Holon","1981-08-25");
 		insertRecordToLecturer("Amit","Rash","Ramat Hasharon","1983-08-25");
-
-
+		
 		// Insert records into course table
 		statement = connection.prepareStatement("INSERT INTO course (name, semester, year, hours) "
 				+ "values(?,?,?,?)");
@@ -133,29 +162,32 @@ public class DbHelper {
 		insertRecordToPhone(9,"058-2423123");
 		insertRecordToPhone(3,"051-4325231");
 		insertRecordToPhone(2,"058-3123125");
-		
+
+		statement.executeUpdate("SET foreign_key_checks = 0;");
 		// Insert records into timetable
 		statement = connection.prepareStatement("INSERT INTO timetable values(?,?,?,?,?)");
 		insertRecordToTimetable(1,3,247,"Sunday", 10);
 		insertRecordToTimetable(3,4,2104,"Monday", 11);
 		insertRecordToTimetable(4,5,2105,"Tuesday", 12);
-		insertRecordToTimetable(6,6,2255,"Friday", 10);
+		insertRecordToTimetable(6,6,2255,"Friday", 12);
 		insertRecordToTimetable(7,7,3315,"Thursday", 8);
 		insertRecordToTimetable(8,8,247,"Wednesday", 15);
 		insertRecordToTimetable(9,9,2207,"Sunday", 12);
 		insertRecordToTimetable(3,1,4313,"Friday", 12);
 		insertRecordToTimetable(2,3,2104,"Monday", 13);
 		insertRecordToTimetable(5,2,4313,"Tuesday", 14);
+
+		statement.executeUpdate("SET foreign_key_checks = 1;");
 	}
-	
+
 	private void insertRecordToTimetable(int courseNum, int lecturerId,
 			int classNum, String day, int hour) throws SQLException {
-		
-		statement.setInt(1, courseNum);
-		statement.setInt(2, lecturerId);
+
+		statement.setString(1, day);
+		statement.setInt(2, hour);
 		statement.setInt(3, classNum);
-		statement.setString(4, day);
-		statement.setInt(5, hour);
+		statement.setInt(4, courseNum);
+		statement.setInt(5, lecturerId);
 		statement.addBatch();
 		statement.executeBatch();
 	}
@@ -191,7 +223,7 @@ public class DbHelper {
 		statement.addBatch();
 		statement.executeBatch();
 	}
-	
+
 	private void insertRecordToPhone(int idLecturer, String phoneNum) throws SQLException {
 		statement.setString(1, phoneNum);
 		statement.setInt(2, idLecturer);
@@ -209,6 +241,6 @@ public class DbHelper {
 		if(connection!=null) try{connection.close();}catch(SQLException e){}
 		if(rs!=null) try{rs.close();}catch(SQLException e){}
 	}
-	
+
 	public Connection getConnection() {return connection;}
 }

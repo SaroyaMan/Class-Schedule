@@ -58,14 +58,13 @@ public class LecturerDAO {
 		try {
 			// prepare statement
 			myStmt = connection.prepareStatement("insert into lecturer (name_first, name_last,"
-				+ "address, birthdate, age) values(?,?,?,?,?)");
+				+ "address, birthdate) values(?,?,?,?)");
 			
 			// set params
 			myStmt.setString(1, theLecturer.getFirstName());
 			myStmt.setString(2, theLecturer.getLastName());
 			myStmt.setString(3, theLecturer.getAddress());
 			myStmt.setDate(4, theLecturer.getBirthdate());
-			myStmt.setInt(5, theLecturer.getAge());
 			// execute SQL
 			myStmt.executeUpdate();			
 		}
@@ -81,7 +80,7 @@ public class LecturerDAO {
 		try {
 			// prepare statement
 			myStmt = connection.prepareStatement("update lecturer"
-					+ " set first_name=?, last_name=?, address=?, birthdate=? where id=?");
+					+ " set name_first=?, name_last=?, address=?, birthdate=? where id=?");
 			
 			// set params
 			myStmt.setString(1, theLecturer.getFirstName());

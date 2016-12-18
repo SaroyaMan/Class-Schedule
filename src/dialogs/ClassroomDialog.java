@@ -141,30 +141,31 @@ public class ClassroomDialog extends JDialog {
 		try {
 			int classNum = Integer.parseInt(classNumTextField.getText());
 			int oldClassNum = 0;
-			if (updateMode) {
+			
+			
+			if (updateMode) { 
 				oldClassNum = previousClassroom.getNumber();
-				tempClassroom = previousClassroom;
+//				tempClassroom = previousClassroom;
+				tempClassroom = new Classroom(previousClassroom.getNumber());
 				tempClassroom.setNumber(classNum);
+				
+				classroomDAO.updateClassroom(tempClassroom, oldClassNum); // save to the database
+				previousClassroom = tempClassroom;
 
 			} else {
 				tempClassroom = new Classroom(classNum);
+				classroomDAO.addClassroom(tempClassroom); // save to the database
 			}
 
-
-			// save to the database
-			if (updateMode) {
-				classroomDAO.updateClassroom(tempClassroom, oldClassNum);
-			} else {
-				classroomDAO.addClassroom(tempClassroom);
-			}
-
+			
 			// close dialog
 			setVisible(false);
 			dispose();
 
 			// refresh gui list
 			guiClass.refreshClassroomView();
-
+			guiClass.refreshTimetableView();
+			
 			// show success message
 			JOptionPane.showMessageDialog(guiClass,
 					"Classroom saved succesfully.", "Classroom Saved",

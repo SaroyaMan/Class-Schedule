@@ -1,8 +1,7 @@
 package timetable;
 
-import java.awt.EventQueue;
-
 import java.awt.Font;
+
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -30,10 +29,13 @@ import java.awt.GridBagConstraints;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import java.awt.Insets;
+import java.awt.Point;
 import java.awt.Toolkit;
 import javax.swing.JButton;
 import java.awt.FlowLayout;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.text.ParseException;
@@ -41,13 +43,9 @@ import java.awt.event.ActionEvent;
 
 public class GuiClass extends JFrame {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 
 	private DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-
 
 	private JPanel contentPane;
 
@@ -84,21 +82,7 @@ public class GuiClass extends JFrame {
 	private JButton addButton;
 	private JButton deleteButton;
 	private JButton updateButton;
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					GuiClass frame = new GuiClass();
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
+
 
 	/**
 	 * Create the frame.
@@ -114,9 +98,9 @@ public class GuiClass extends JFrame {
 		setContentPane(contentPane);
 		GridBagLayout gbl_contentPane = new GridBagLayout();
 		gbl_contentPane.columnWidths = new int[]{0, 0};
-		gbl_contentPane.rowHeights = new int[]{0, 0, 0, 0};
+		gbl_contentPane.rowHeights = new int[]{0, 0, 0, 0, 0, 0};
 		gbl_contentPane.columnWeights = new double[]{1.0, Double.MIN_VALUE};
-		gbl_contentPane.rowWeights = new double[]{1.0, 1.0, 1.0, Double.MIN_VALUE};
+		gbl_contentPane.rowWeights = new double[]{1.0, 1.0, 0.0, 0.0, 1.0, Double.MIN_VALUE};
 		contentPane.setLayout(gbl_contentPane);
 
 		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
@@ -147,6 +131,23 @@ public class GuiClass extends JFrame {
 		tabbedPane.addTab("Classrooms", createImageIcon("images/classroomlogo.png"),
 				new JScrollPane(classroomTable), "Watch classroom table");
 
+		classroomTable.addMouseListener(new MouseAdapter() {
+			public void mousePressed(MouseEvent me) {
+				JTable table =(JTable) me.getSource();
+				Point p = me.getPoint();
+				int row = table.rowAtPoint(p);
+				if (me.getClickCount() == 2) {
+					try {
+						new ClassroomInfoDialog((int)table.getValueAt(row, ClassroomTableModel.NUMBER_COL), 
+								timetableDAO);
+					} catch (SQLException e) {
+						JOptionPane.showMessageDialog(GuiClass.this, "Error: " + e.getMessage(),
+								"Error", JOptionPane.ERROR_MESSAGE);
+					}
+				}
+			}
+		});
+
 		courseTable = new JTable(courseTableModel);
 		tabbedPane.addTab("Courses", createImageIcon("images/courselogo.png"),
 				new JScrollPane(courseTable), "Watch course table");
@@ -154,6 +155,25 @@ public class GuiClass extends JFrame {
 		lecturerTable = new JTable(lecturerTableModel);
 		tabbedPane.addTab("Lecturers", createImageIcon("images/lecturerlogo.png"),
 				new JScrollPane(lecturerTable), "Watch lecturer table");
+
+		lecturerTable.addMouseListener(new MouseAdapter() {
+			public void mousePressed(MouseEvent me) {
+				JTable table =(JTable) me.getSource();
+				Point p = me.getPoint();
+				int row = table.rowAtPoint(p);
+				if (me.getClickCount() == 2) {
+					try {
+						new LecturerInfoDialog((int)table.getValueAt(row, LecturerTableModel.ID_COL), 
+								(String) table.getValueAt(row, LecturerTableModel.FIRST_NAME_COL),
+								(String) table.getValueAt(row, LecturerTableModel.LAST_NAME_COL),
+								timetableDAO);
+					} catch (SQLException e) {
+						JOptionPane.showMessageDialog(GuiClass.this, "Error: " + e.getMessage(),
+								"Error", JOptionPane.ERROR_MESSAGE);
+					}
+				}
+			}
+		});
 
 		phoneTable = new JTable(phoneTableModel);
 		tabbedPane.addTab("Lecturers Phone", createImageIcon("images/phonelogo.png"),
@@ -264,11 +284,14 @@ public class GuiClass extends JFrame {
 				addButton.setVisible(false);
 				deleteButton.setVisible(false);
 				updateButton.setVisible(false);
+				
 			} else {
 				addButton.setVisible(true);
 				deleteButton.setVisible(true);
 				updateButton.setVisible(true);
 			}
+//			if(index == 2) panel_1.setVisible(true);
+//			else panel_1.setVisible(false);
 		});
 	}
 
@@ -281,7 +304,7 @@ public class GuiClass extends JFrame {
 			classroomDialog.setVisible(true);
 		}
 	}
-	
+
 	private void addToLecturer() {
 		if (lecturerDialog == null || !lecturerDialog.isVisible()) {
 			// create dialog
@@ -328,7 +351,7 @@ public class GuiClass extends JFrame {
 			// show dialog
 			classroomDialog.setVisible(true);
 		}
-		//TODO: update the timetable accordanly
+
 	}
 
 	private void updateCourse() throws SQLException {
@@ -345,9 +368,8 @@ public class GuiClass extends JFrame {
 			// show dialog
 			courseDialog.setVisible(true);
 		}
-		//TODO: update the timetable accordanly
 	}
-	
+
 	private void updateLecturer() throws SQLException {
 		int row = 0;
 		if((row = lecturerTable.getSelectedRow()) == -1)
@@ -389,13 +411,17 @@ public class GuiClass extends JFrame {
 		int classNumber = (int) classroomTable.getValueAt(row, 0);
 
 		int response = confirmMessage
-				("class number "+classNumber+"? (timetable will be affected)"); // prompt the user
+				("class number "+classNumber+"?"); // prompt the user
 		if (response != JOptionPane.YES_OPTION) return;
 
-		classroomDAO.deleteClassroom(classNumber);
+		try {classroomDAO.deleteClassroom(classNumber);}
+		catch(SQLException e) {throw new SQLException("Cannot delete: classroom exists in timetable");}
+		//		//TODO	
+		//		ArrayList<Timetable> classroomsToUpdate = timetableDAO.getSimilarClassrooms(classNumber);
+		//		for (Timetable timetable : classroomsToUpdate) {
+		//			System.out.println(timetable);
+		//		}
 		refreshClassroomView();
-
-		/*TODO: decide what to do with timetable Table when a classroom is deleted*/
 	}
 
 	private void deleteFromCourse(int index) throws SQLException {
@@ -409,7 +435,6 @@ public class GuiClass extends JFrame {
 		if (response != JOptionPane.YES_OPTION) return;
 		courseDAO.deleteCourse(courseNum);
 		refreshCourseView();
-		timetableDAO.deleteTimetableByCourseNumber(courseNum);
 		refreshTimetableView();
 	}
 
@@ -419,13 +444,13 @@ public class GuiClass extends JFrame {
 			throw new SQLException("No lecturer was selected");
 		int lecturerId = (int) lecturerTable.getValueAt(row,0);
 		int response = confirmMessage
-				("lecturer with id "+ lecturerId+" ? (timetable will be affected)"); // prompt the user
+				("lecturer who's id is "+ lecturerId+" ? (timetable will be affected)"); // prompt the user
 		if (response != JOptionPane.YES_OPTION) return;
 
 		lecturerDAO.deleteLecturer(lecturerId);
 		refreshLecturerView();
-
-		/*TODO: decide what to do with timetable Table when a lecturer is deleted*/
+		refreshPhoneView();
+		refreshTimetableView();
 	}
 
 	private void deleteFromPhone(int index) throws SQLException {
@@ -448,7 +473,7 @@ public class GuiClass extends JFrame {
 
 	/* Returns an ImageIcon, or null if the path was invalid. */
 	protected static ImageIcon createImageIcon(String path) {
-		java.net.URL imgURL = View.class.getResource(path);
+		java.net.URL imgURL = GuiClass.class.getResource(path);
 		if (imgURL != null) {
 			return new ImageIcon(imgURL);
 		} else {

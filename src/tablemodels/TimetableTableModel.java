@@ -11,17 +11,17 @@ public class TimetableTableModel extends AbstractTableModel {
 	private static final long serialVersionUID = 1L;
 	
 	public static final int OBJECT_COL = -1;
-	public static final int COURSENUM_COL = 0;
-	public static final int LECTURERID_COL = 1;
+	public static final int DAY_COL = 0;
+	public static final int HOUR_COL = 1;
 	public static final int CLASSNUM_COL = 2;
-	public static final int DAY_COL = 3;
-	public static final int HOUR_COL = 4;
+	public static final int COURSENUM_COL = 3;
+	public static final int LECTURERID_COL = 4;
 	
-	private String[] columnNames = { "Course Number", "Lecturer Id", "Class Number","Day", "Hour"};
-	private List<Timetable> Timetables;
+	private String[] columnNames = { "Day", "Hour", "Class Number","Course Number", "Lecturer ID"};
+	private List<Timetable> timetables;
 
 	public TimetableTableModel(List<Timetable> theTimetables) {
-		Timetables = theTimetables;
+		timetables = theTimetables;
 	}
 	
 	@Override
@@ -31,7 +31,7 @@ public class TimetableTableModel extends AbstractTableModel {
 
 	@Override
 	public int getRowCount() {
-		return Timetables.size();
+		return timetables.size();
 	}
 	
 	@Override
@@ -41,7 +41,7 @@ public class TimetableTableModel extends AbstractTableModel {
 
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
-		Timetable tempTimetable = Timetables.get(rowIndex);
+		Timetable tempTimetable = timetables.get(rowIndex);
 
 		switch (columnIndex) {
 		case COURSENUM_COL:
