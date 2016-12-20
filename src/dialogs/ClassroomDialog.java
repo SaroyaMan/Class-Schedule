@@ -144,7 +144,6 @@ public class ClassroomDialog extends JDialog {
 			
 			if (updateMode) { 
 				oldClassNum = previousClassroom.getNumber();
-//				tempClassroom = previousClassroom;
 				tempClassroom = new Classroom(previousClassroom.getNumber());
 				tempClassroom.setNumber(classNum);
 				

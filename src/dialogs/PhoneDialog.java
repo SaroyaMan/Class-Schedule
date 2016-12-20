@@ -163,19 +163,13 @@ public class PhoneDialog extends JDialog {
 			if (updateMode) {
 				tempPhone = previousPhone;
 				tempPhone.setNumber(number);
+				phoneDAO.updatePhone(tempPhone);
 
 			} else {
 				tempPhone = new Phone(number, idLecturer);
-			}
-
-
-			// save to the database
-			if (updateMode) {
-				phoneDAO.updatePhone(tempPhone);
-			} else {
 				phoneDAO.addPhone(tempPhone);
 			}
-
+			
 			// close dialog
 			setVisible(false);
 			dispose();

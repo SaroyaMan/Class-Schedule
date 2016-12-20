@@ -224,17 +224,11 @@ public class LecturerDialog extends JDialog {
 				tempLecturer.setLastName(l_name);
 				tempLecturer.setAddress(address);
 				tempLecturer.setBirthdate(birthdate);
+				LecturerDAO.updateLecturer(tempLecturer); // save to the database
 
 			} else {
 				tempLecturer = new Lecturer(0,f_name, l_name, address, birthdate);
-			}
-
-
-			// save to the database
-			if (updateMode) {
-				LecturerDAO.updateLecturer(tempLecturer);
-			} else {
-				LecturerDAO.addLecturer(tempLecturer);
+				LecturerDAO.addLecturer(tempLecturer); // save to the database
 			}
 
 			// close dialog

@@ -212,17 +212,11 @@ public class CourseDialog extends JDialog {
 				tempCourse.setSemester(semester);
 				tempCourse.setYear(year);
 				tempCourse.setHours(hours);
+				CourseDAO.updateCourse(tempCourse); // save to the database
 
 			} else {
 				tempCourse = new Course(0,name, semester, year, hours);
-			}
-
-
-			// save to the database
-			if (updateMode) {
-				CourseDAO.updateCourse(tempCourse);
-			} else {
-				CourseDAO.addCourse(tempCourse);
+				CourseDAO.addCourse(tempCourse); // save to the database
 			}
 
 			// close dialog
