@@ -14,7 +14,7 @@ import org.jdatepicker.JDatePicker;
 
 import classes.Lecturer;
 import dao.LecturerDAO;
-import timetable.GuiClass;
+import timetable.Application;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -34,7 +34,7 @@ public class LecturerDialog extends JDialog {
 	private final JPanel contentPanel = new JPanel();
 
 	private LecturerDAO LecturerDAO;
-	private GuiClass guiClass;
+	private Application guiClass;
 
 	private Lecturer previousLecturer = null;
 	private boolean updateMode = false;
@@ -44,7 +44,7 @@ public class LecturerDialog extends JDialog {
 
 	private JDatePicker datePicker;
 	
-	public LecturerDialog(GuiClass guiClass,
+	public LecturerDialog(Application guiClass,
 			LecturerDAO theLecturerDAO, Lecturer thePreviousLecturer, boolean theUpdateMode) {
 
 		this();
@@ -58,7 +58,7 @@ public class LecturerDialog extends JDialog {
 		}
 	}
 
-	public LecturerDialog(GuiClass guiClass,LecturerDAO theLecturerDAO) {
+	public LecturerDialog(Application guiClass,LecturerDAO theLecturerDAO) {
 		this(guiClass, theLecturerDAO, null, false);
 	}
 

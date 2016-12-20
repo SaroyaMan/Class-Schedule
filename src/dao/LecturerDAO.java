@@ -146,4 +146,34 @@ public class LecturerDAO {
 			myStmt.close();
 		}
 	}
+
+	public List<Lecturer> filterLecturers(int fromDayOfWeek, int fromHour, int toDayOfWeek, int toHour)
+			throws SQLException {
+		
+		list = new ArrayList<>();
+		
+		PreparedStatement myStmt = null;
+		ResultSet myRs = null;
+		
+		try {
+			myStmt = connection.prepareStatement("select distinct id, name_first, name_last, address, birthdate "
+					+ "from lecturer natural join "
+					+ "(select lecturerId from timetable "
+					+ "where day+hour/100 between ? and ?) T "
+					+ "where id = T.lecturerId");
+			myStmt.setFloat(1,((float)fromDayOfWeek) + ((float)fromHour/100));
+			myStmt.setFloat(2,((float)toDayOfWeek) + ((float)toHour/100));
+			
+			myRs = myStmt.executeQuery();
+			
+			while (myRs.next()) {
+				Lecturer tempLecturer = convertRowToLecturer(myRs);
+				list.add(tempLecturer);
+			}
+			return list;		
+		}
+		finally {
+			close(myStmt, myRs);
+		}
+	}
 }

@@ -5,8 +5,6 @@ public class Phone {
 	private int idLecturer;
 	private String number;
 	
-	
-	
 	public Phone(String number, int idLecturer) {
 		this.idLecturer = idLecturer;
 		this.number = number;
@@ -27,6 +25,4 @@ public class Phone {
 	public String toString() {
 		return "Phone [idLecturer=" + idLecturer + ", number=" + number + "]";
 	}
-	
-	
 }

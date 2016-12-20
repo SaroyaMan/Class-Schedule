@@ -2,20 +2,23 @@ package dialogs;
 
 import java.awt.BorderLayout;
 
+
 import javax.swing.JDialog;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableModel;
-
 import dao.TimetableDAO;
+import timetable.Application;
 
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
 
 import java.awt.GridBagLayout;
+import java.awt.Toolkit;
 import java.sql.SQLException;
+import java.util.Vector;
 import java.awt.GridBagConstraints;
 
 public class LecturerInfoDialog extends JDialog {
@@ -28,9 +31,11 @@ public class LecturerInfoDialog extends JDialog {
 	 * Create the dialog.
 	 * @throws SQLException 
 	 */
-	public LecturerInfoDialog(int lecturerId, String fName, String lName, TimetableDAO _timetableDAO)
+	public LecturerInfoDialog(int lecturerId, String fName, String lName, TimetableDAO _timetableDAO, 
+			Application guiClass)
 			throws SQLException {
 		setTitle("Lecturer Info: "+lecturerId+" - "+fName+" "+lName);
+		setIconImage(Toolkit.getDefaultToolkit().getImage("images/infologo.png"));
 		TimetableDAO timetableDAO = _timetableDAO;
 
 		setBounds(100, 100, 613, 300);
@@ -51,9 +56,18 @@ public class LecturerInfoDialog extends JDialog {
 		gbc_scrollPane.gridy = 0;
 		contentPanel.add(scrollPane, gbc_scrollPane);
 
-		String[] columns = {"Course ID", "Course Name", "Number", "Building", "Floor", "Day", "Hour"};
-		String[][] rows = null;
-		table = new JTable((new DefaultTableModel(rows, columns))) {
+		Vector<String> columns = new Vector<>();
+		columns.add("Class Number"); columns.add("Course Number"); 
+		columns.add("Course Name"); columns.add("Day"); columns.add("Hour");
+		Vector<Vector<String>> rows = timetableDAO.getLecturerInfo(lecturerId);
+		if(rows.isEmpty()) {
+			JOptionPane.showMessageDialog(guiClass,
+					"Error:" + "This lecturer doesn't teaching", "Error",
+					JOptionPane.ERROR_MESSAGE);
+			this.dispose();
+			return;
+		}
+		table = new JTable(rows, columns) {
 
 			private static final long serialVersionUID = -8543155634392823341L;
 			public boolean isCellEditable(int data, int columns) {return false;}
@@ -66,10 +80,7 @@ public class LecturerInfoDialog extends JDialog {
 		for(int x=0;x<table.getColumnCount();x++)
 			table.getColumnModel().getColumn(x).setCellRenderer( centerRenderer );
 
-
-		/*Start*/
-		rows = timetableDAO.getLecturerInfo(lecturerId);
-
+		
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		setVisible(true);
 	}

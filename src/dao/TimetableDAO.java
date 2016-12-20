@@ -9,6 +9,7 @@ import java.sql.Statement;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 import classes.Timetable;
 import timetable.DbHelper;
@@ -155,26 +156,6 @@ public class TimetableDAO {
 		}
 	}
 
-	//	public ArrayList<Timetable> getSimilarClassrooms(int ClassNum) {
-	//
-	//		ArrayList<Timetable> timewithOldClass = new ArrayList<>();
-	//
-	//		//			// prepare statement
-	//		//			myStmt = connection.prepareStatement("select * from timetable where classNumber=?");
-	//		//			
-	//		//			// set param
-	//		//			myStmt.setInt(1, oldClassNum);
-	//		//
-	//		//			// execute SQL
-	//		//			rs = myStmt.executeQuery();		
-	//		for (Timetable timetable : list) {
-	//			if(timetable.getClassNum() == ClassNum) {
-	//				timewithOldClass.add(timetable);
-	//			}
-	//		}
-	//		return timewithOldClass;
-	//	}
-
 	private Timetable convertRowToTimetable(ResultSet myRs) throws SQLException {
 
 		int courseNumber = myRs.getInt("courseNumber");
@@ -186,7 +167,79 @@ public class TimetableDAO {
 		return new Timetable(courseNumber, lecturerId, classNumber, day, hour);
 	}
 
+	public Vector<Vector<String>> getClassroomInfo(int classNumber) throws SQLException {
+		Vector<Vector<String>> data = new Vector<Vector<String>>();
+		Vector<String> row = null;
+		PreparedStatement myStmt = null;
+		ResultSet rs = null;
+		try {
+			// prepare statement
+			myStmt = connection.prepareStatement(
+					  "select "
+					+ "lecturer.id 'lecturerId', lecturer.name_first, lecturer.name_last, "
+					+ "course.number 'courseNumber', course.name 'courseName' "
+					+ "from timetable "
+					+ "join lecturer on timetable.lecturerId = lecturer.id "
+					+ "join course on timetable.courseNumber = course.number "
+					+ "where timetable.classNumber = ?");
 
+			// set param
+			myStmt.setInt(1, classNumber);
+
+			// execute SQL
+			rs = myStmt.executeQuery();
+			while (rs.next()) {
+				row = new Vector<String>();
+				row.addElement(String.valueOf(rs.getInt("lecturerId")));
+				row.addElement(rs.getString("name_first")+" "+ rs.getString("name_last"));
+				row.addElement(String.valueOf(rs.getString("courseNumber")));
+				row.addElement(rs.getString("courseName"));
+				data.addElement(row);
+			}
+			return data;
+		}
+		finally {
+			close(myStmt,rs);
+		}
+	}
+
+	public Vector<Vector<String>> getLecturerInfo(int lecturerId) throws SQLException {
+		Vector<Vector<String>> data = new Vector<Vector<String>>();
+		Vector<String> row = null;
+		PreparedStatement myStmt = null;
+		ResultSet rs = null;
+		
+		try {
+			// prepare statement
+			myStmt = connection.prepareStatement(
+					  "select "
+					+ "classNumber, course.number 'courseNumber', name 'courseName', day, hour "
+					+ "from timetable "
+					+ "join classroom on timetable.classNumber = classroom.number "
+					+ "join course on timetable.courseNumber = course.number "
+					+ "where timetable.lecturerId = ?");
+
+			// set param
+			myStmt.setInt(1, lecturerId);
+
+			// execute SQL
+			rs = myStmt.executeQuery();
+			while (rs.next()) {
+				row = new Vector<String>();
+				row.addElement(String.valueOf(rs.getInt("classNumber")));
+				row.addElement(String.valueOf(rs.getString("courseNumber")));
+				row.addElement(rs.getString("courseName"));
+				row.addElement(rs.getString("day"));
+				row.addElement(String.valueOf(rs.getString("hour"))+":00");
+				data.addElement(row);
+			}
+			return data;
+		}
+		finally {
+			close(myStmt,rs);
+		}
+	}
+	
 	private static void close(Statement myStmt, ResultSet myRs)
 			throws SQLException {
 
@@ -197,39 +250,5 @@ public class TimetableDAO {
 		if (myStmt != null) {
 			myStmt.close();
 		}
-	}
-
-	public String[][] getClassroomInfo(int classNumber) throws SQLException {
-		//TODO
-		String[][] data;
-		ArrayList<Timetable> classInfoNeeded = new ArrayList<>();
-		PreparedStatement myStmt = null;
-
-//		for (Timetable timetable : list) {
-//			if(timetable.getClassNum() == classNumber)
-//				classInfoNeeded.add(timetable);
-//		}
-
-		try {
-			// prepare statement
-			myStmt = connection.prepareStatement("select (id, name_first, name_last) from lecturer "
-					+ "where lecturerId = "
-					+ "(select lecturerId from timetable where classNumber=?)");
-
-			// set param
-			myStmt.setInt(1, classNumber);
-
-			// execute SQL
-			myStmt.executeUpdate();		
-			return null;
-		}
-		finally {
-			close(myStmt,null);
-		}
-	}
-
-	public String[][] getLecturerInfo(int lecturerId) {
-		//	TODO
-		return null;
 	}
 }

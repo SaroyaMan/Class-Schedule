@@ -53,7 +53,7 @@ public class TimetableTableModel extends AbstractTableModel {
 		case DAY_COL:
 			return tempTimetable.getDay();
 		case HOUR_COL:
-			return tempTimetable.getHour();
+			return tempTimetable.getHour()+":00";
 		case OBJECT_COL:
 			return tempTimetable;
 		default:

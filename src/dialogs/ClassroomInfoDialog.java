@@ -2,20 +2,24 @@ package dialogs;
 
 import java.awt.BorderLayout;
 
+
 import javax.swing.JDialog;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableModel;
 
 import dao.TimetableDAO;
+import timetable.Application;
 
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
 
 import java.awt.GridBagLayout;
+import java.awt.Toolkit;
 import java.sql.SQLException;
+import java.util.Vector;
 import java.awt.GridBagConstraints;
 
 public class ClassroomInfoDialog extends JDialog {
@@ -28,11 +32,12 @@ public class ClassroomInfoDialog extends JDialog {
 	 * Create the dialog.
 	 * @throws SQLException 
 	 */
-	public ClassroomInfoDialog(int classNumber,TimetableDAO _timetableDAO) throws SQLException {
+	public ClassroomInfoDialog(int classNumber,TimetableDAO _timetableDAO, Application guiClass) throws SQLException {
 		setTitle("Classroom Info: "+classNumber);
+		setIconImage(Toolkit.getDefaultToolkit().getImage("images/infologo.png"));
 		TimetableDAO timetableDAO = _timetableDAO;
 
-		setBounds(100, 100, 450, 300);
+		setBounds(100, 100, 503, 300);
 		getContentPane().setLayout(new BorderLayout());
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		getContentPane().add(contentPanel, BorderLayout.CENTER);
@@ -50,9 +55,19 @@ public class ClassroomInfoDialog extends JDialog {
 		gbc_scrollPane.gridy = 0;
 		contentPanel.add(scrollPane, gbc_scrollPane);
 
-		String[] columns = {"Lecturer ID", "Lecturer Name", "Course Number", "Course Name"};
-		String[][] rows = null;
-		table = new JTable((new DefaultTableModel(rows, columns))) {
+		Vector<String> columns = new Vector<>();
+		columns.add("Lecturer ID"); columns.add("Lecturer Name"); 
+		columns.add("Course Number"); columns.add("Course Name"); 
+		Vector<Vector<String>> rows = timetableDAO.getClassroomInfo(classNumber);
+		if(rows.isEmpty()) {
+			JOptionPane.showMessageDialog(guiClass,
+					"Error:" + "This classroom is not in use", "Error",
+					JOptionPane.ERROR_MESSAGE);
+			this.dispose();
+			return;
+		}
+
+		table = new JTable(rows, columns) {
 
 			private static final long serialVersionUID = -8543155634392823341L;
 			public boolean isCellEditable(int data, int columns) {return false;}
@@ -64,11 +79,6 @@ public class ClassroomInfoDialog extends JDialog {
 		centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
 		for(int x=0;x<table.getColumnCount();x++)
 			table.getColumnModel().getColumn(x).setCellRenderer( centerRenderer );
-
-
-		/*Start*/
-//		rows = timetableDAO.getClassroomInfo(classNumber);
-
 
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		setVisible(true);

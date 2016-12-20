@@ -32,9 +32,5 @@ public class Classroom {
 	@Override
 	public String toString() {
 		return "Classroom [building=" + building + ", floor=" + floor + ", number=" + number + "]";
-	}
-	
-	
-	
-	
+	}	
 }

@@ -50,6 +50,4 @@ public class Timetable {
 		return "Timetable [courseNum=" + courseNum + ", lecturerId=" + lecturerId + ", classNum=" + classNum + ", day="
 				+ day + ", hour=" + hour + "]";
 	}
-	
-	
 }

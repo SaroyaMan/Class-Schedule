@@ -8,8 +8,6 @@ public class Course {
 	private int year;
 	private int hours;
 	
-	
-	
 	public Course(int number, String name, String semester, int year, int hours) {
 		this.number = number;
 		this.name = name;
@@ -52,7 +50,4 @@ public class Course {
 		return "Course [number=" + number + ", name=" + name + ", year=" + year + ", semester=" + semester + ", hours="
 				+ hours + "]";
 	}
-	
-	
-	
 }

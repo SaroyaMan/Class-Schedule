@@ -24,10 +24,10 @@ public class DbHelper {
 		connectToDatabase();
 
 		// Create tables
-//		createTables();
+		createTables();
 
 		// Insert records to tables
-//		insertRecords();
+		insertRecords();
 	}
 
 	private void connectToDatabase() throws IOException, SQLException, ClassNotFoundException {
@@ -53,27 +53,6 @@ public class DbHelper {
 		//clearAllTables(statement);
 
 		//Create all the tables needed for project
-
-		//		statement.executeUpdate("CREATE TABLE IF NOT EXISTS classroom(number int, building int, "
-		//				+ "floor int NOT NULL, PRIMARY KEY(number))");
-		//
-		//		statement.executeUpdate("CREATE TABLE IF NOT EXISTS lecturer(id int AUTO_INCREMENT, "
-		//				+ "name_first varchar(20) NOT NULL, name_last varchar(20) NOT NULL, "
-		//				+ "address varchar(20) NOT NULL, birthdate date NOT NULL, "
-		//				+ "PRIMARY KEY(id))");
-		//		
-		//		 		statement.executeUpdate("CREATE TABLE IF NOT EXISTS timetable(day varchar(10), "
-		//				+ "hour int, classNumber int, courseNumber int, lecturerId int, "
-		//				+ "PRIMARY KEY(day, hour, classNumber))");	
-		//
-		//		statement.executeUpdate("CREATE TABLE IF NOT EXISTS phone(number varchar(12), "
-		//				+ "lecturerId int, PRIMARY KEY(number))");
-		//		
-		//		statement.executeUpdate("CREATE TABLE IF NOT EXISTS course(number int AUTO_INCREMENT, "
-		//				+ "name varchar(20) NOT NULL, semester char NOT NULL, year int NOT NULL, "
-		//				+ "hours int NOT NULL, PRIMARY KEY(number))");
-
-		
 		statement.executeUpdate("CREATE TABLE IF NOT EXISTS classroom(number int, INDEX num_ind (number),"
 				+ " building int, floor int NOT NULL, PRIMARY KEY(number))ENGINE=INNODB");
 
@@ -95,7 +74,8 @@ public class DbHelper {
 				+ "lecturerId int, INDEX lecturer_id_ind (lecturerId), PRIMARY KEY(number), "
 				+ "CONSTRAINT FOREIGN KEY(lecturerId) REFERENCES lecturer(id) ON DELETE CASCADE) ENGINE=INNODB");
 
-		statement.executeUpdate("CREATE TABLE IF NOT EXISTS timetable(day varchar(10), "
+		statement.executeUpdate("CREATE TABLE IF NOT EXISTS timetable("
+				+ "day ENUM('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'), "
 				+ "hour int, classNumber int, INDEX class_num_ind (classNumber), "
 				+ "courseNumber int, INDEX course_num_ind (courseNumber), "
 				+ "lecturerId int, INDEX lec_id_ind (lecturerId) ,PRIMARY KEY(day, hour, classNumber), "
@@ -103,6 +83,19 @@ public class DbHelper {
 				+ "CONSTRAINT FOREIGN KEY(classNumber) REFERENCES classroom(number) ON UPDATE CASCADE, "
 				+ "CONSTRAINT FOREIGN KEY(lecturerId) REFERENCES lecturer(id) ON DELETE CASCADE) "
 				+ "ENGINE=INNODB");	
+		
+		
+		/*
+		 * 		statement.executeUpdate("CREATE TABLE IF NOT EXISTS timetable("
+				+ "day varchar(10), "
+				+ "hour int, classNumber int, INDEX class_num_ind (classNumber), "
+				+ "courseNumber int, INDEX course_num_ind (courseNumber), "
+				+ "lecturerId int, INDEX lec_id_ind (lecturerId) ,PRIMARY KEY(day, hour, classNumber), "
+				+ "CONSTRAINT FOREIGN KEY(courseNumber) REFERENCES course(number) ON DELETE CASCADE, "
+				+ "CONSTRAINT FOREIGN KEY(classNumber) REFERENCES classroom(number) ON UPDATE CASCADE, "
+				+ "CONSTRAINT FOREIGN KEY(lecturerId) REFERENCES lecturer(id) ON DELETE CASCADE) "
+				+ "ENGINE=INNODB");	
+		 */
 	}
 
 	private void insertRecords() throws SQLException, ParseException {

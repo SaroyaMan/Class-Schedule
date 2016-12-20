@@ -12,7 +12,7 @@ import javax.swing.border.EmptyBorder;
 import classes.Phone;
 import dao.LecturerDAO;
 import dao.PhoneDAO;
-import timetable.GuiClass;
+import timetable.Application;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -36,13 +36,13 @@ public class PhoneDialog extends JDialog {
 	private JComboBox<?> comboBox = null;
 	
 	private PhoneDAO phoneDAO;
-	private GuiClass guiClass;
+	private Application guiClass;
 
 	private Phone previousPhone = null;
 	private boolean updateMode = false;
 	private JTextField phoneNumTextField;
 
-	public PhoneDialog(GuiClass guiClass,
+	public PhoneDialog(Application guiClass,
 			PhoneDAO thePhoneDAO, Phone thePreviousPhone, boolean theUpdateMode) {
 
 		this();
@@ -56,7 +56,7 @@ public class PhoneDialog extends JDialog {
 		}
 	}
 
-	public PhoneDialog(GuiClass guiClass,PhoneDAO thePhoneDAO) {
+	public PhoneDialog(Application guiClass,PhoneDAO thePhoneDAO) {
 		this(guiClass, thePhoneDAO, null, false);
 	}
 
@@ -159,7 +159,6 @@ public class PhoneDialog extends JDialog {
 
 		try {
 			String number = phoneNumTextField.getText();
-//			if (number.co)
 			int idLecturer = (int) comboBox.getSelectedItem();
 			if (updateMode) {
 				tempPhone = previousPhone;

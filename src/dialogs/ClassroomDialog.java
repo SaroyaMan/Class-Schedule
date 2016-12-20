@@ -11,7 +11,7 @@ import javax.swing.border.EmptyBorder;
 
 import classes.Classroom;
 import dao.ClassroomDAO;
-import timetable.GuiClass;
+import timetable.Application;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -31,13 +31,13 @@ public class ClassroomDialog extends JDialog {
 	private final JPanel contentPanel = new JPanel();
 
 	private ClassroomDAO classroomDAO;
-	private GuiClass guiClass;
+	private Application guiClass;
 
 	private Classroom previousClassroom = null;
 	private boolean updateMode = false;
 	private JTextField classNumTextField;
 
-	public ClassroomDialog(GuiClass guiClass,
+	public ClassroomDialog(Application guiClass,
 			ClassroomDAO theClassroomDAO, Classroom thePreviousClassroom, boolean theUpdateMode) {
 
 		this();
@@ -51,7 +51,7 @@ public class ClassroomDialog extends JDialog {
 		}
 	}
 
-	public ClassroomDialog(GuiClass guiClass,ClassroomDAO theClassroomDAO) {
+	public ClassroomDialog(Application guiClass,ClassroomDAO theClassroomDAO) {
 		this(guiClass, theClassroomDAO, null, false);
 	}
 
@@ -64,7 +64,6 @@ public class ClassroomDialog extends JDialog {
 	 * Create the dialog.
 	 */
 	public ClassroomDialog() {
-//		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setTitle("Add Classroom");
 		setIconImage(Toolkit.getDefaultToolkit().getImage("images/addlogo.png"));
 		setBounds(100, 100, 405, 204);

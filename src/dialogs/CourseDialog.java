@@ -11,7 +11,7 @@ import javax.swing.border.EmptyBorder;
 
 import classes.Course;
 import dao.CourseDAO;
-import timetable.GuiClass;
+import timetable.Application;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -31,7 +31,7 @@ public class CourseDialog extends JDialog {
 	private final JPanel contentPanel = new JPanel();
 
 	private CourseDAO CourseDAO;
-	private GuiClass guiClass;
+	private Application guiClass;
 
 	private Course previousCourse = null;
 	private boolean updateMode = false;
@@ -40,7 +40,7 @@ public class CourseDialog extends JDialog {
 	private JComboBox<String> semesterComboBox;
 	private JComboBox<Integer> hoursComboBox;
 
-	public CourseDialog(GuiClass guiClass,
+	public CourseDialog(Application guiClass,
 			CourseDAO theCourseDAO, Course thePreviousCourse, boolean theUpdateMode) {
 
 		this();
@@ -54,7 +54,7 @@ public class CourseDialog extends JDialog {
 		}
 	}
 
-	public CourseDialog(GuiClass guiClass,CourseDAO theCourseDAO) {
+	public CourseDialog(Application guiClass,CourseDAO theCourseDAO) {
 		this(guiClass, theCourseDAO, null, false);
 	}
 
@@ -157,7 +157,7 @@ public class CourseDialog extends JDialog {
 			contentPanel.add(hoursLabel, gbc_hoursLabel);
 		}
 		{
-			Integer[] hourOptions = {1,2,3,4,5,6,7,8,9,10};
+			Integer[] hourOptions = {1,2,3,4,5,6};
 			hoursComboBox = new JComboBox<>(hourOptions);
 			GridBagConstraints gbc_hoursComboBox = new GridBagConstraints();
 			gbc_hoursComboBox.fill = GridBagConstraints.HORIZONTAL;
