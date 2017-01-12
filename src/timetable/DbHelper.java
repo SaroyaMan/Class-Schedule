@@ -24,10 +24,10 @@ public class DbHelper {
 		connectToDatabase();
 
 		// Create tables
-		createTables();
+//		createTables();
 
 		// Insert records to tables
-		insertRecords();
+//		insertRecords();
 	}
 
 	private void connectToDatabase() throws IOException, SQLException, ClassNotFoundException {
@@ -83,19 +83,7 @@ public class DbHelper {
 				+ "CONSTRAINT FOREIGN KEY(classNumber) REFERENCES classroom(number) ON UPDATE CASCADE, "
 				+ "CONSTRAINT FOREIGN KEY(lecturerId) REFERENCES lecturer(id) ON DELETE CASCADE) "
 				+ "ENGINE=INNODB");	
-		
-		
-		/*
-		 * 		statement.executeUpdate("CREATE TABLE IF NOT EXISTS timetable("
-				+ "day varchar(10), "
-				+ "hour int, classNumber int, INDEX class_num_ind (classNumber), "
-				+ "courseNumber int, INDEX course_num_ind (courseNumber), "
-				+ "lecturerId int, INDEX lec_id_ind (lecturerId) ,PRIMARY KEY(day, hour, classNumber), "
-				+ "CONSTRAINT FOREIGN KEY(courseNumber) REFERENCES course(number) ON DELETE CASCADE, "
-				+ "CONSTRAINT FOREIGN KEY(classNumber) REFERENCES classroom(number) ON UPDATE CASCADE, "
-				+ "CONSTRAINT FOREIGN KEY(lecturerId) REFERENCES lecturer(id) ON DELETE CASCADE) "
-				+ "ENGINE=INNODB");	
-		 */
+
 	}
 
 	private void insertRecords() throws SQLException, ParseException {

@@ -32,6 +32,7 @@ import java.awt.Point;
 import java.awt.Toolkit;
 import javax.swing.JButton;
 
+import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.FlowLayout;
 import java.awt.event.ActionListener;
@@ -461,6 +462,10 @@ public class Application extends JFrame {
 			if(index == 2) filterLecturerPanel.setVisible(true);
 			else filterLecturerPanel.setVisible(false);
 		});
+		
+		Dimension minD= this.getMinimumSize();
+		minD.height = this.getHeight()+50;
+		this.setMinimumSize((minD));
 	}
 
 	private void addToClassroom() {
@@ -583,7 +588,7 @@ public class Application extends JFrame {
 		if (response != JOptionPane.YES_OPTION) return;
 
 		try {classroomDAO.deleteClassroom(classNumber);}
-		catch(SQLException e) {throw new SQLException("Cannot delete: classroom exists in timetable");}
+		catch(SQLException e) {throw new SQLException("Cannot delete: classroom is in use in timetable");}
 		refreshClassroomView();
 	}
 
