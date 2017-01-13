@@ -1,12 +1,11 @@
 package timetable;
 
 import java.io.FileInputStream;
-
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.*;
 import java.text.ParseException;
 import java.util.Properties;
-
 
 public class DbHelper {
 
@@ -18,28 +17,34 @@ public class DbHelper {
 
 	private PreparedStatement statement = null;
 	
-	private static int id = 1;
-
 	private DbHelper() throws ClassNotFoundException, SQLException, IOException, ParseException {
-
-		// Connect to database
-		connectToDatabase();
-
-		// Create tables
-		createTables();
-
-		// Insert records to tables
-		insertRecords();
-	}
-
-	private void connectToDatabase() throws IOException, SQLException, ClassNotFoundException {
-
-		//Register JDBC driver
-		Class.forName("com.mysql.jdbc.Driver");
 
 		//Get database properties
 		Properties props = new Properties();
 		props.load(new FileInputStream("src/timetable/timetable.properties"));
+		
+		// Connect to database
+		connectToDatabase(props);
+
+		if(props.getProperty("isInitialized").equals("0")) {
+			
+			// Create tables
+			createTables();
+			
+			// Insert records to tables
+			insertRecords();
+			
+			props.setProperty("isInitialized", "1");
+			props.store(new FileOutputStream("src/timetable/timetable.properties"), null);
+		}
+		else
+			connection.createStatement().executeQuery("USE timetable");
+	}
+
+	private void connectToDatabase(Properties props) throws IOException, SQLException, ClassNotFoundException {
+
+		//Register JDBC driver
+		Class.forName("com.mysql.jdbc.Driver");
 
 		//Connect to database
 		connection = DriverManager.getConnection(props.getProperty("dburl"),
@@ -49,7 +54,9 @@ public class DbHelper {
 
 	private void createTables() throws SQLException  {
 		Statement statement = connection.createStatement();
-		//clearAllTables(statement);
+		
+		statement.executeUpdate("CREATE DATABASE IF NOT EXISTS timetable");
+		statement.executeQuery("USE timetable");
 
 		//Create all the tables needed for project
 		statement.executeUpdate("CREATE TABLE IF NOT EXISTS classroom(number int, INDEX num_ind (number),"
@@ -61,6 +68,7 @@ public class DbHelper {
 				+ "address varchar(20) NOT NULL, birthdate date NOT NULL, "
 				+ "PRIMARY KEY(id)) ENGINE=INNODB");
 
+
 		
 		statement.executeUpdate("CREATE TABLE IF NOT EXISTS course(number int AUTO_INCREMENT, "
 				+ "INDEX num_ind (number), "
@@ -68,6 +76,10 @@ public class DbHelper {
 				+ "hours int NOT NULL, PRIMARY KEY(number)) "
 				+ "ENGINE=INNODB");
 	
+		// Creating the trigger
+		statement.executeUpdate("CREATE TRIGGER count_total_hours BEFORE INSERT ON course "
+				   +"FOR EACH ROW SET @total_hours = @total_hours + NEW.hours");
+		statement.executeUpdate("SET @total_hours = 0");
 
 		statement.executeUpdate("CREATE TABLE IF NOT EXISTS phone(number varchar(12), "
 				+ "lecturerId int, INDEX lecturer_id_ind (lecturerId), PRIMARY KEY(number), "
@@ -82,15 +94,12 @@ public class DbHelper {
 				+ "CONSTRAINT FOREIGN KEY(classNumber) REFERENCES classroom(number) ON UPDATE CASCADE, "
 				+ "CONSTRAINT FOREIGN KEY(lecturerId) REFERENCES lecturer(id) ON DELETE CASCADE) "
 				+ "ENGINE=INNODB");	
-
 	}
 
 	private void insertRecords() throws SQLException, ParseException {
 
 		// Insert records into classroom table
-		statement = connection.prepareStatement("INSERT IGNORE INTO classroom values(?,?,?)");
-//		statement = connection.prepareStatement("INSERT INTO classroom values(?,?,?)");
-
+		statement = connection.prepareStatement("INSERT INTO classroom values(?,?,?)");
 		insertRecordToClassroom(2104);
 		insertRecordToClassroom(2105);
 		insertRecordToClassroom(2207);
@@ -103,10 +112,8 @@ public class DbHelper {
 		insertRecordToClassroom(3315);
 
 		// Insert records into lecturer table
-
-//		statement = connection.prepareStatement("INSERT INTO lecturer (name_first, name_last,"
-//				+ "address, birthdate) values(?,?,?,?)");
-		statement = connection.prepareStatement("INSERT IGNORE INTO lecturer values(?,?,?,?,?)");
+		statement = connection.prepareStatement("INSERT INTO lecturer (name_first, name_last,"
+				+ "address, birthdate) values(?,?,?,?)");
 		insertRecordToLecturer("Marcelo","Shihman","Bney Brak","1991-04-03");
 		insertRecordToLecturer("Amit","Shmuel","Ramat Hasharon","1991-08-25");
 		insertRecordToLecturer("Yftah","Livny","Petah Tikva","1988-03-01");
@@ -118,11 +125,9 @@ public class DbHelper {
 		insertRecordToLecturer("Yonit","Rusho","Holon","1981-08-25");
 		insertRecordToLecturer("Amit","Rash","Ramat Hasharon","1983-08-25");
 		
-		id = 1;
 		// Insert records into course table
-//		statement = connection.prepareStatement("INSERT INTO course (name, semester, year, hours) "
-//				+ "values(?,?,?,?)");
-		statement = connection.prepareStatement("INSERT IGNORE INTO course values(?,?,?,?,?)");
+		statement = connection.prepareStatement("INSERT INTO course (name, semester, year, hours) "
+				+ "values(?,?,?,?)");
 		insertRecordToCourse("Computer Sience A", "a", 2016, 4);
 		insertRecordToCourse("Computer Sience B", "b", 2016, 4);
 		insertRecordToCourse("Calculus A", "a", 2016, 5);
@@ -136,7 +141,7 @@ public class DbHelper {
 		insertRecordToCourse("OOP", "a", 2012, 3);
 		
 		// Insert records into course table
-		statement = connection.prepareStatement("INSERT IGNORE INTO phone values(?,?)");
+		statement = connection.prepareStatement("INSERT INTO phone values(?,?)");
 		insertRecordToPhone(1,"054-3456569");
 		insertRecordToPhone(2,"052-2548161");
 		insertRecordToPhone(2,"053-3456521");
@@ -150,7 +155,7 @@ public class DbHelper {
 
 		statement.executeUpdate("SET foreign_key_checks = 0;");
 		// Insert records into timetable
-		statement = connection.prepareStatement("INSERT IGNORE INTO timetable values(?,?,?,?,?)");
+		statement = connection.prepareStatement("INSERT INTO timetable values(?,?,?,?,?)");
 		insertRecordToTimetable(1,3,247,"Sunday", 10);
 		insertRecordToTimetable(3,4,2104,"Monday", 11);
 		insertRecordToTimetable(4,5,2105,"Tuesday", 12);
@@ -188,11 +193,10 @@ public class DbHelper {
 
 	private void insertRecordToCourse(String name, String semester, int year, int hours)
 			throws SQLException {
-		statement.setInt(1,id++);
-		statement.setString(2,name);
-		statement.setString(3,semester);
-		statement.setInt(4,year);
-		statement.setInt(5,hours);
+		statement.setString(1,name);
+		statement.setString(2,semester);
+		statement.setInt(3,year);
+		statement.setInt(4,hours);
 		statement.addBatch();
 		statement.executeBatch();
 	}
@@ -201,11 +205,10 @@ public class DbHelper {
 			String birthdate) throws SQLException {
 
 		Date birth = Date.valueOf(birthdate);
-		statement.setInt(1, id++);
-		statement.setString(2, fname);
-		statement.setString(3, lname);
-		statement.setString(4, address);
-		statement.setDate(5,birth);
+		statement.setString(1, fname);
+		statement.setString(2, lname);
+		statement.setString(3, address);
+		statement.setDate(4,birth);
 		statement.addBatch();
 		statement.executeBatch();
 	}
