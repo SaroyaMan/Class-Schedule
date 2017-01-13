@@ -17,6 +17,8 @@ public class DbHelper {
 	private ResultSet rs = null;
 
 	private PreparedStatement statement = null;
+	
+	private static int id = 1;
 
 	private DbHelper() throws ClassNotFoundException, SQLException, IOException, ParseException {
 
@@ -24,10 +26,10 @@ public class DbHelper {
 		connectToDatabase();
 
 		// Create tables
-//		createTables();
+		createTables();
 
 		// Insert records to tables
-//		insertRecords();
+		insertRecords();
 	}
 
 	private void connectToDatabase() throws IOException, SQLException, ClassNotFoundException {
@@ -35,17 +37,14 @@ public class DbHelper {
 		//Register JDBC driver
 		Class.forName("com.mysql.jdbc.Driver");
 
-//		String dburl;
-
 		//Get database properties
 		Properties props = new Properties();
 		props.load(new FileInputStream("src/timetable/timetable.properties"));
 
 		//Connect to database
-		connection = DriverManager.getConnection(/*dburl = */props.getProperty("dburl"),
+		connection = DriverManager.getConnection(props.getProperty("dburl"),
 				props.getProperty("user"), props.getProperty("password"));
 		connection.setAutoCommit(true);
-//		System.out.println("DB connection successful to: " + dburl);
 	}
 
 	private void createTables() throws SQLException  {
@@ -89,7 +88,9 @@ public class DbHelper {
 	private void insertRecords() throws SQLException, ParseException {
 
 		// Insert records into classroom table
-		statement = connection.prepareStatement("INSERT INTO classroom values(?,?,?)");
+		statement = connection.prepareStatement("INSERT IGNORE INTO classroom values(?,?,?)");
+//		statement = connection.prepareStatement("INSERT INTO classroom values(?,?,?)");
+
 		insertRecordToClassroom(2104);
 		insertRecordToClassroom(2105);
 		insertRecordToClassroom(2207);
@@ -103,8 +104,9 @@ public class DbHelper {
 
 		// Insert records into lecturer table
 
-		statement = connection.prepareStatement("INSERT INTO lecturer (name_first, name_last,"
-				+ "address, birthdate) values(?,?,?,?)");
+//		statement = connection.prepareStatement("INSERT INTO lecturer (name_first, name_last,"
+//				+ "address, birthdate) values(?,?,?,?)");
+		statement = connection.prepareStatement("INSERT IGNORE INTO lecturer values(?,?,?,?,?)");
 		insertRecordToLecturer("Marcelo","Shihman","Bney Brak","1991-04-03");
 		insertRecordToLecturer("Amit","Shmuel","Ramat Hasharon","1991-08-25");
 		insertRecordToLecturer("Yftah","Livny","Petah Tikva","1988-03-01");
@@ -116,9 +118,11 @@ public class DbHelper {
 		insertRecordToLecturer("Yonit","Rusho","Holon","1981-08-25");
 		insertRecordToLecturer("Amit","Rash","Ramat Hasharon","1983-08-25");
 		
+		id = 1;
 		// Insert records into course table
-		statement = connection.prepareStatement("INSERT INTO course (name, semester, year, hours) "
-				+ "values(?,?,?,?)");
+//		statement = connection.prepareStatement("INSERT INTO course (name, semester, year, hours) "
+//				+ "values(?,?,?,?)");
+		statement = connection.prepareStatement("INSERT IGNORE INTO course values(?,?,?,?,?)");
 		insertRecordToCourse("Computer Sience A", "a", 2016, 4);
 		insertRecordToCourse("Computer Sience B", "b", 2016, 4);
 		insertRecordToCourse("Calculus A", "a", 2016, 5);
@@ -132,7 +136,7 @@ public class DbHelper {
 		insertRecordToCourse("OOP", "a", 2012, 3);
 		
 		// Insert records into course table
-		statement = connection.prepareStatement("INSERT INTO phone values(?,?)");
+		statement = connection.prepareStatement("INSERT IGNORE INTO phone values(?,?)");
 		insertRecordToPhone(1,"054-3456569");
 		insertRecordToPhone(2,"052-2548161");
 		insertRecordToPhone(2,"053-3456521");
@@ -146,7 +150,7 @@ public class DbHelper {
 
 		statement.executeUpdate("SET foreign_key_checks = 0;");
 		// Insert records into timetable
-		statement = connection.prepareStatement("INSERT INTO timetable values(?,?,?,?,?)");
+		statement = connection.prepareStatement("INSERT IGNORE INTO timetable values(?,?,?,?,?)");
 		insertRecordToTimetable(1,3,247,"Sunday", 10);
 		insertRecordToTimetable(3,4,2104,"Monday", 11);
 		insertRecordToTimetable(4,5,2105,"Tuesday", 12);
@@ -157,7 +161,6 @@ public class DbHelper {
 		insertRecordToTimetable(3,1,4313,"Friday", 12);
 		insertRecordToTimetable(2,3,2104,"Monday", 13);
 		insertRecordToTimetable(5,2,4313,"Tuesday", 14);
-
 		statement.executeUpdate("SET foreign_key_checks = 1;");
 	}
 
@@ -185,10 +188,11 @@ public class DbHelper {
 
 	private void insertRecordToCourse(String name, String semester, int year, int hours)
 			throws SQLException {
-		statement.setString(1,name);
-		statement.setString(2,semester);
-		statement.setInt(3,year);
-		statement.setInt(4,hours);
+		statement.setInt(1,id++);
+		statement.setString(2,name);
+		statement.setString(3,semester);
+		statement.setInt(4,year);
+		statement.setInt(5,hours);
 		statement.addBatch();
 		statement.executeBatch();
 	}
@@ -197,10 +201,11 @@ public class DbHelper {
 			String birthdate) throws SQLException {
 
 		Date birth = Date.valueOf(birthdate);
-		statement.setString(1, fname);
-		statement.setString(2, lname);
-		statement.setString(3, address);
-		statement.setDate(4,birth);
+		statement.setInt(1, id++);
+		statement.setString(2, fname);
+		statement.setString(3, lname);
+		statement.setString(4, address);
+		statement.setDate(5,birth);
 		statement.addBatch();
 		statement.executeBatch();
 	}
